@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useGetProjectsQuery } from "../../api/projectApi";
 import { type RootState } from "../../app/store";
+import { selectPermissions } from "../../features/auth/authSlice";
 import { ProjectCard } from "../../components/project/ProjectCard";
 import { CreateProjectModal } from "../../components/project/CreateProjectModal";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ export default function ProjectsDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   
   const currentTenantId = useSelector((state: RootState) => state.organization.currentTenantId);
+  const permissions = useSelector(selectPermissions) || [];
+  const canCreateProject = permissions.includes("PROJECT_CREATE") || permissions.includes("ALL_PERMISSIONS");
+
   const { data: projects, isLoading } = useGetProjectsQuery(currentTenantId, {
     skip: !currentTenantId,
   });
@@ -30,10 +34,12 @@ export default function ProjectsDashboard() {
           <p className="text-slate-500 mt-1">Manage and track your organization's projects.</p>
         </div>
         
-        <Button onClick={() => setShowCreateModal(true)} disabled={!currentTenantId}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Project
-        </Button>
+        {canCreateProject && (
+          <Button onClick={() => setShowCreateModal(true)} disabled={!currentTenantId}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Project
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center max-w-sm">
@@ -75,7 +81,7 @@ export default function ProjectsDashboard() {
           <p className="text-slate-500 mt-1 mb-6">
             {searchTerm ? "Try adjusting your search terms." : "Get started by creating your first project."}
           </p>
-          {!searchTerm && (
+          {!searchTerm && canCreateProject && (
             <Button onClick={() => setShowCreateModal(true)}>
               Create Project
             </Button>

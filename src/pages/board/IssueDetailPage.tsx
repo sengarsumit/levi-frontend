@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router';
 import { useGetIssueByIdQuery } from '../../api/issueApi';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { IssueTypeBadge } from '../../components/issue/IssueBadge';
 import { format } from 'date-fns';
 
@@ -56,6 +56,12 @@ export default function IssueDetailPage() {
             <div className="flex items-center gap-2 text-slate-500">
               <Calendar className="w-4 h-4" />
               <span>Created: {format(new Date(issue.createdAt), 'MMM d, yyyy')}</span>
+            </div>
+          )}
+          {issue.timeTakenHours != null && (
+            <div className="flex items-center gap-2 text-emerald-600 font-medium">
+              <Clock className="w-4 h-4" />
+              <span>Time Taken: {issue.timeTakenHours} hours</span>
             </div>
           )}
         </div>

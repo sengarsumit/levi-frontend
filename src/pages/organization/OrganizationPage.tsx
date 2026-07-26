@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Building, Plus, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router";
 
 export default function OrganizationPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: organizations, isLoading } = useGetOrganizationsQuery(undefined);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
@@ -39,11 +41,14 @@ export default function OrganizationPage() {
                 </div>
                 <h3 className="font-semibold text-lg text-slate-900">{org.name}</h3>
               </CardHeader>
-              <CardContent className="p-5 pt-3">
+              <CardContent className="p-5 pt-3 flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
                   <Calendar className="w-3.5 h-3.5" />
                   {org.createdAt ? format(new Date(org.createdAt), 'MMM d, yyyy') : 'N/A'}
                 </div>
+                <Button variant="outline" size="sm" onClick={() => navigate(`/organization/${org.id}/settings`)}>
+                  Manage
+                </Button>
               </CardContent>
             </Card>
           ))}
