@@ -99,6 +99,11 @@ src/
 - Invite Modal
 - Role Dropdown
 
+**Features**
+- Organization-based Login (e.g., `/login/:orgSlug`)
+- Custom Roles & RBAC (Role-Based Access Control)
+- Permission-based task transition & project creation
+
 ## Phase 3 — Projects
 **Pages**
 - Projects Dashboard
@@ -256,6 +261,20 @@ RTK Query handles most caching.
 - Burndown
 - Weekly Progress
 
+## Phase 12 — Time Tracking & Shifts
+**Pages**
+- Timesheet
+- Shift Management
+
+**Components**
+- Shift Scheduler
+- Working Hours Configurator
+- Time Log Table
+
+**Features**
+- Calculate task time based on user shifts (e.g., 9-6)
+- Automatically exclude weekends and non-working hours
+
 ## Responsive Design
 **Desktop**
 - Sidebar
@@ -278,6 +297,9 @@ RTK Query handles most caching.
 ├── login
 ├── register
 ├── dashboard
+│      ├── user
+│      ├── project
+│      └── organization
 ├── organization
 ├── projects
 │      ├── create
