@@ -24,11 +24,13 @@ export function WorkspaceSwitcher() {
   // Auto-select first org if none selected and orgs exist
   useEffect(() => {
     if (!currentTenantId && organizations?.length > 0) {
-      dispatch(setTenantId(organizations[0].id));
+      dispatch(setTenantId(String(organizations[0].id)));
     }
   }, [currentTenantId, organizations, dispatch]);
 
-  const currentOrg = organizations?.find((org: any) => org.id === currentTenantId);
+  // currentTenantId is persisted to localStorage (and sent as the X-Tenant-ID header) as a
+  // string, but organizations[].id comes back from the API as a number — compare as strings.
+  const currentOrg = organizations?.find((org: any) => String(org.id) === currentTenantId);
 
   return (
     <>
@@ -50,14 +52,14 @@ export function WorkspaceSwitcher() {
           {organizations?.map((org: any) => (
             <DropdownMenuItem
               key={org.id}
-              onClick={() => dispatch(setTenantId(org.id))}
+              onClick={() => dispatch(setTenantId(String(org.id)))}
               className="flex items-center justify-between cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <Building className="w-4 h-4 text-slate-500" />
                 {org.name}
               </div>
-              {currentTenantId === org.id && <Check className="w-4 h-4" />}
+              {currentTenantId === String(org.id) && <Check className="w-4 h-4" />}
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />

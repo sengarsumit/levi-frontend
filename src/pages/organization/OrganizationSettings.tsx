@@ -187,7 +187,7 @@ export default function OrganizationSettings() {
               <div className="space-y-2">
                 <Label>Permissions</Label>
                 <div className="space-y-2 border p-4 rounded-md">
-                  {['PROJECT_CREATE', 'TASK_TRANSITION'].map(perm => (
+                  {['ISSUE_READ', 'ISSUE_CREATE', 'ISSUE_UPDATE', 'ISSUE_DELETE', 'TASK_TRANSITION', 'PROJECT_CREATE', 'ORG_ADMIN'].map(perm => (
                     <div key={perm} className="flex items-center gap-2">
                       <input 
                         type="checkbox" 

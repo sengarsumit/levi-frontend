@@ -14,15 +14,13 @@ export function useWebSocket(
   useEffect(() => {
     if (!projectId || !token) return;
 
-    // Build WebSocket client with SockJS fallback
+    // Build WebSocket client with SockJS fallback. Relative URL so this resolves against
+    // the current origin — proxied to the backend in dev (see vite.config.ts) and expected
+    // to be reverse-proxied alongside /api in any real deployment, same as the REST calls.
     const client = new Client({
-      // WebSockets connect directly to WS, or use fallback URL for SockJS
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws-levi'),
+      webSocketFactory: () => new SockJS('/ws-levi'),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
-      },
-      debug: function (str) {
-        console.log('[STOMP]: ' + str);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -30,7 +28,6 @@ export function useWebSocket(
     });
 
     client.onConnect = function () {
-      console.log(`Connected to WS. Subscribing to /topic/projects/${projectId}/issues`);
       client.subscribe(`/topic/projects/${projectId}/issues`, (message) => {
         if (message.body) {
           const issue = JSON.parse(message.body);

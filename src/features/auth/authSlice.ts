@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { decodeJwt } from '../../lib/jwt';
 
 interface AuthState {
   token: string | null;
@@ -16,20 +17,6 @@ const initialState: AuthState = {
   orgSlug: null,
 };
 
-function parseJwt (token: string) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-  } catch(e) {
-    return null;
-  }
-}
-
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -44,11 +31,9 @@ const authSlice = createSlice({
         state.user = action.payload.user;
       }
       
-      const decoded = parseJwt(action.payload.token);
-      if (decoded) {
-        state.permissions = decoded.permissions || [];
-        state.orgSlug = decoded.orgSlug || null;
-      }
+      const decoded = decodeJwt(action.payload.token);
+      state.permissions = (decoded.permissions as string[]) || [];
+      state.orgSlug = (decoded.orgSlug as string) || null;
 
       localStorage.setItem('token', action.payload.token);
     },

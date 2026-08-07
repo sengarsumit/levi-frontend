@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { FolderKanban, MoreHorizontal, Calendar, CheckSquare } from "lucide-react";
+import { FolderKanban, MoreHorizontal, Calendar } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { format } from "date-fns";
 
@@ -44,14 +44,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </p>
       </CardContent>
       
-      <CardFooter className="p-5 pt-0 flex items-center justify-between text-xs text-slate-500 border-t mt-4 border-slate-100 pt-4">
+      <CardFooter className="p-5 pt-0 flex items-center text-xs text-slate-500 border-t mt-4 border-slate-100 pt-4">
         <div className="flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5" />
           {format(new Date(project.createdAt), 'MMM d, yyyy')}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <CheckSquare className="w-3.5 h-3.5" />
-          0 Issues
         </div>
       </CardFooter>
     </Card>

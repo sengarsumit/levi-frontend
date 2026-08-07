@@ -12,6 +12,9 @@ export interface Issue {
   sprintId?: number;
   createdAt: string;
   updatedAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  timeTakenHours?: number;
 }
 
 export interface User {

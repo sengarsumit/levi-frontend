@@ -78,7 +78,9 @@ export default function ProjectDetail() {
             <h3 className="text-sm font-medium text-slate-500">Status</h3>
           </CardHeader>
           <CardContent>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              project.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'
+            }`}>
               {project.status}
             </span>
           </CardContent>
