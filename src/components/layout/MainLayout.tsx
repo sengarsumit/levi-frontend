@@ -8,6 +8,10 @@ import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 const MainLayout = () => {
   const dispatch = useDispatch();
 
+  // Redirecting to the right login page (org-specific vs generic) after sign-out is handled
+  // by ProtectedRoute, not here — dispatching logout() and then also calling navigate() in
+  // this handler raced against ProtectedRoute's own redirect (both react to the same
+  // isAuthenticated flip) and ProtectedRoute always won, regardless of call order.
   const handleLogout = () => {
     dispatch(logout());
   };

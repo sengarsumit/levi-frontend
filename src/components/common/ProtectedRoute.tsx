@@ -11,7 +11,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // lastOrgSlug survives logout() (see authSlice) specifically so this redirect can send
+    // a signed-out user back to the org-specific login page they came from, rather than the
+    // generic one — a plain navigate() call from the sign-out button races this redirect and
+    // reliably loses, so the redirect target has to be decided here instead.
+    const lastOrgSlug = localStorage.getItem('lastOrgSlug');
+    const loginPath = lastOrgSlug ? `/login/${lastOrgSlug}` : '/login';
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

@@ -14,8 +14,6 @@ import { KanbanColumn } from './KanbanColumn';
 import { KanbanCard } from './KanbanCard';
 import { IssueDrawer } from '../issue/IssueDrawer';
 import { useMoveIssueMutation } from '../../api/issueApi';
-import { selectPermissions } from '../../features/auth/authSlice';
-import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
 
 interface Issue {
@@ -43,9 +41,6 @@ export function KanbanBoard({ columns, issues, projectId, boardId }: KanbanBoard
   const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
   const [selectedIssueId, setSelectedIssueId] = useState<number | null>(null);
   const [moveIssue] = useMoveIssueMutation();
-  
-  const permissions = useSelector(selectPermissions) || [];
-  const canTransitionTasks = permissions.includes("TASK_TRANSITION") || permissions.includes("ALL_PERMISSIONS");
 
   // Update localIssues when issues prop changes (RTK Query refetch)
   if (JSON.stringify(issues) !== JSON.stringify(localIssues)) {
@@ -62,17 +57,11 @@ export function KanbanBoard({ columns, issues, projectId, boardId }: KanbanBoard
     localIssues.filter((i) => i.workflowStateId === columnId);
 
   const handleDragStart = (event: DragStartEvent) => {
-    if (!canTransitionTasks) {
-      toast.error("You don't have permission to transition tasks.");
-      return;
-    }
     const issue = localIssues.find((i) => i.id === event.active.id);
     setActiveIssue(issue ?? null);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    if (!canTransitionTasks) return;
-    
     const { active, over } = event;
     setActiveIssue(null);
 

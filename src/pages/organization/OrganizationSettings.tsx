@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
-import { 
-  useGetRolesQuery, 
-  useCreateRoleMutation, 
+import { useParams, Link } from "react-router";
+import {
+  useGetRolesQuery,
+  useCreateRoleMutation,
   useInviteUserMutation,
   useGetPendingMembersQuery,
   useApproveMemberMutation,
@@ -15,11 +15,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Shield, UserPlus } from "lucide-react";
+import { Shield, UserPlus, Lock } from "lucide-react";
 
 export default function OrganizationSettings() {
   const { id } = useParams<{ id: string }>();
-  const { data: roles, isLoading: rolesLoading } = useGetRolesQuery(id);
+
+  // Whether the current user can see this page is decided by the backend's live
+  // ORG_ADMIN check on these requests, not a client-side guess from the JWT — the JWT's
+  // permission claims are only a login-time snapshot (see TenantContextInterceptor) and
+  // can be stale or empty for a genuine admin who reached this org via the workspace
+  // switcher rather than a fresh org-scoped login.
+  const { data: roles, isLoading: rolesLoading, error: rolesError } = useGetRolesQuery(id);
   const [createRole, { isLoading: creatingRole }] = useCreateRoleMutation();
   const [inviteUser, { isLoading: invitingUser }] = useInviteUserMutation();
   const { data: pendingMembers, isLoading: pendingLoading } = useGetPendingMembersQuery(id);
@@ -152,10 +158,31 @@ export default function OrganizationSettings() {
   };
 
   const toggleWorkingDay = (day: string) => {
-    setWorkingDays(prev => 
+    setWorkingDays(prev =>
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
     );
   };
+
+  if (rolesLoading) {
+    return <div className="animate-pulse h-10 bg-slate-100 rounded-md" />;
+  }
+
+  if ((rolesError as any)?.status === 403) {
+    return (
+      <div className="text-center py-16 bg-white rounded-xl border border-dashed">
+        <div className="mx-auto w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <Lock className="w-6 h-6 text-slate-400" />
+        </div>
+        <h2 className="text-xl font-semibold text-slate-900">Access restricted</h2>
+        <p className="text-slate-500 mt-1">
+          Organization settings, roles, and member management are only visible to org admins.
+        </p>
+        <Link to="/projects">
+          <Button variant="outline" className="mt-4">Back to Projects</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

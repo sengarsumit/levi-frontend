@@ -36,6 +36,12 @@ const authSlice = createSlice({
       state.orgSlug = (decoded.orgSlug as string) || null;
 
       localStorage.setItem('token', action.payload.token);
+      // Deliberately NOT cleared on logout (see below) — this is what lets ProtectedRoute
+      // send a signed-out user back to the org-specific login page they came from, instead
+      // of the generic one, even though logout() clears the in-memory orgSlug above.
+      if (decoded.orgSlug) {
+        localStorage.setItem('lastOrgSlug', decoded.orgSlug as string);
+      }
     },
     logout: (state) => {
       state.token = null;
