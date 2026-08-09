@@ -18,10 +18,9 @@ Netlify's own build/serve.
 
 ## Steps
 
-1. **Update the backend URL.** `netlify.toml` currently points at
-   `https://levi-backend.onrender.com` (the name set in `levi/render.yaml`).
-   If Render gave your service a different URL (e.g. that name was taken),
-   edit both `to =` lines in `netlify.toml` to match before deploying.
+1. ~~Update the backend URL.~~ Done — `netlify.toml` points at the real
+   backend, `https://levi-ued5.onrender.com` (confirmed live via
+   `/auth/health` → `{"status":"UP"}`).
 2. Push this repo to GitHub (`git add netlify.toml DEPLOYMENT.md`, commit,
    push to `main`) if it isn't already.
 3. On [netlify.com](https://netlify.com) (no card required): **Add new site**

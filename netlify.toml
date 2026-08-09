@@ -5,12 +5,9 @@
 # Mirrors vite.config.ts's dev proxy: the app calls relative /api/* paths with
 # no configured base URL, and the backend's real routes have no /api prefix
 # (e.g. GET /api/boards -> GET /boards), so it must be stripped here too.
-#
-# IMPORTANT: replace this host if your Render service ends up with a
-# different URL than levi-backend.onrender.com (e.g. the name was taken).
 [[redirects]]
   from = "/api/*"
-  to = "https://levi-backend.onrender.com/:splat"
+  to = "https://levi-ued5.onrender.com/:splat"
   status = 200
   force = true
 
@@ -21,7 +18,7 @@
 # socket. See DEPLOYMENT.md.
 [[redirects]]
   from = "/ws-levi/*"
-  to = "https://levi-backend.onrender.com/ws-levi/:splat"
+  to = "https://levi-ued5.onrender.com/ws-levi/:splat"
   status = 200
   force = true
 
