@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCreateIssueMutation } from '../../api/issueApi';
+import { useGetUsersQuery } from '../../api/userApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,8 +34,10 @@ export function CreateIssueModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [issueType, setIssueType] = useState<'TASK' | 'BUG' | 'STORY'>('TASK');
+  const [assignedTo, setAssignedTo] = useState('');
 
   const [createIssue, { isLoading }] = useCreateIssueMutation();
+  const { data: users = [] } = useGetUsersQuery();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,12 +51,17 @@ export function CreateIssueModal({
         projectId,
         boardId,
         workflowStateId,
+        // Omit entirely rather than sending an empty string when unassigned — the backend
+        // only honors this field at all if the caller can assign (ISSUE_ASSIGN/ORG_ADMIN),
+        // silently dropping it otherwise, so there's no case where sending it helps.
+        ...(assignedTo ? { assignedTo } : {}),
       }).unwrap();
 
       toast.success('Issue created successfully');
       setTitle('');
       setDescription('');
       setIssueType('TASK');
+      setAssignedTo('');
       onOpenChange(false);
     } catch (err: unknown) {
       const error = err as { data?: { message?: string } };
@@ -114,6 +122,20 @@ export function CreateIssueModal({
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="issue-assignee">Assignee</Label>
+              <select
+                id="issue-assignee"
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2"
+              >
+                <option value="">Unassigned</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
             </div>
           </div>
           <DialogFooter>

@@ -1,7 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IssueTypeBadge } from './IssueBadge';
-import { GripVertical, User } from 'lucide-react';
+import { AssigneeAvatar } from './AssigneeAvatar';
+import { GripVertical } from 'lucide-react';
 import type { Issue } from '../../types';
 
 interface IssueCardProps {
@@ -49,8 +50,8 @@ export default function IssueCard({ issue }: IssueCardProps) {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <User className="w-3.5 h-3.5 text-gray-400" />
+      <div className="flex items-center justify-end mt-2">
+        <AssigneeAvatar assignedTo={issue.assignedTo} />
       </div>
     </div>
   );

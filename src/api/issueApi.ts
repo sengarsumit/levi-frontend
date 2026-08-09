@@ -43,6 +43,14 @@ export const issueApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Issue'],
     }),
+    assignIssue: builder.mutation<Issue, { id: number; assignedTo: string | null }>({
+      query: ({ id, assignedTo }) => ({
+        url: `/api/issues/${id}/assign`,
+        method: 'PATCH',
+        body: { assignedTo },
+      }),
+      invalidatesTags: (_result, _error, { id }) => ['Issue', { type: 'Issue', id }],
+    }),
     deleteIssue: builder.mutation({
       query: (id) => ({
         url: `/api/issues/${id}`,
@@ -61,5 +69,6 @@ export const {
   useCreateIssueMutation,
   useUpdateIssueMutation,
   useMoveIssueMutation,
+  useAssignIssueMutation,
   useDeleteIssueMutation,
 } = issueApi;

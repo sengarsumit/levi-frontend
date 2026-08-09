@@ -1,13 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IssueTypeBadge } from '../issue/IssueBadge';
-import { GripVertical, User } from 'lucide-react';
+import { AssigneeAvatar } from '../issue/AssigneeAvatar';
+import { GripVertical } from 'lucide-react';
 
 interface Issue {
   id: number;
   title: string;
   issueType: string;
   workflowStateId?: number;
+  assignedTo?: string;
 }
 
 interface KanbanCardProps {
@@ -57,8 +59,8 @@ export function KanbanCard({ issue, onClick }: KanbanCardProps) {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <User className="w-3.5 h-3.5 text-slate-400" />
+      <div className="flex items-center justify-end mt-2">
+        <AssigneeAvatar assignedTo={issue.assignedTo} />
       </div>
     </div>
   );

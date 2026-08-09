@@ -1,4 +1,5 @@
-import { useGetIssueByIdQuery, useUpdateIssueMutation, useDeleteIssueMutation } from '../../api/issueApi';
+import { useGetIssueByIdQuery, useUpdateIssueMutation, useDeleteIssueMutation, useAssignIssueMutation } from '../../api/issueApi';
+import { useGetUsersQuery } from '../../api/userApi';
 import { ActivityFeed } from './ActivityFeed';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,9 +19,11 @@ interface IssueDrawerProps {
 type Tab = 'details' | 'activity';
 
 export function IssueDrawer({ issueId, projectId, onClose }: IssueDrawerProps) {
-  const { data: issue, isLoading } = useGetIssueByIdQuery(issueId!, { skip: !issueId });
+  const { data: issue, isLoading, error } = useGetIssueByIdQuery(issueId!, { skip: !issueId });
   const [updateIssue, { isLoading: isUpdating }] = useUpdateIssueMutation();
   const [deleteIssue, { isLoading: isDeleting }] = useDeleteIssueMutation();
+  const [assignIssue, { isLoading: isAssigning }] = useAssignIssueMutation();
+  const { data: users = [] } = useGetUsersQuery();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -64,6 +67,20 @@ export function IssueDrawer({ issueId, projectId, onClose }: IssueDrawerProps) {
       onClose();
     } catch {
       toast.error('Failed to delete issue');
+    }
+  };
+
+  // Its own action, independent of "Save Changes" — mirrors the backend's deliberate split
+  // between ISSUE_UPDATE (title/description) and ISSUE_ASSIGN (this), rather than blurring
+  // that permission boundary in the UI.
+  const handleAssign = async (newAssignedTo: string) => {
+    if (!issue) return;
+    try {
+      await assignIssue({ id: issue.id, assignedTo: newAssignedTo || null }).unwrap();
+      toast.success('Assignee updated');
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string } };
+      toast.error(error?.data?.message || "You don't have permission to assign this issue");
     }
   };
 
@@ -128,6 +145,12 @@ export function IssueDrawer({ issueId, projectId, onClose }: IssueDrawerProps) {
               <div className="h-8 bg-slate-100 rounded animate-pulse" />
               <div className="h-24 bg-slate-100 rounded animate-pulse" />
             </div>
+          ) : error ? (
+            <div className="text-center py-10">
+              <p className="text-sm text-slate-500">
+                This issue doesn't exist, or isn't assigned to you.
+              </p>
+            </div>
           ) : issue ? (
             activeTab === 'details' ? (
               <div className="space-y-5">
@@ -156,6 +179,20 @@ export function IssueDrawer({ issueId, projectId, onClose }: IssueDrawerProps) {
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Type</span>
                     <IssueTypeBadge type={issue.issueType} />
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500">Assignee</span>
+                    <select
+                      value={issue.assignedTo ?? ''}
+                      onChange={(e) => handleAssign(e.target.value)}
+                      disabled={isAssigning}
+                      className="h-8 rounded-md border border-slate-200 bg-white px-2 text-sm text-slate-700"
+                    >
+                      <option value="">Unassigned</option>
+                      {users.map((u) => (
+                        <option key={u.id} value={u.id}>{u.name}</option>
+                      ))}
+                    </select>
                   </div>
                   {issue.createdAt && (
                     <div className="flex justify-between text-sm">

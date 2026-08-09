@@ -21,6 +21,7 @@ interface Issue {
   title: string;
   issueType: string;
   workflowStateId?: number;
+  assignedTo?: string;
 }
 
 interface WorkflowState {
