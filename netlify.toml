@@ -1,0 +1,33 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Mirrors vite.config.ts's dev proxy: the app calls relative /api/* paths with
+# no configured base URL, and the backend's real routes have no /api prefix
+# (e.g. GET /api/boards -> GET /boards), so it must be stripped here too.
+#
+# IMPORTANT: replace this host if your Render service ends up with a
+# different URL than levi-backend.onrender.com (e.g. the name was taken).
+[[redirects]]
+  from = "/api/*"
+  to = "https://levi-backend.onrender.com/:splat"
+  status = 200
+  force = true
+
+# STOMP/SockJS handshake traffic (useWebSocket.ts). Note: Netlify's redirect
+# proxy is documented as HTTP request/response only (26s timeout, no
+# mentioned WebSocket upgrade support) — SockJS should still work by falling
+# back to its HTTP polling transport, just not as a persistent low-latency
+# socket. See DEPLOYMENT.md.
+[[redirects]]
+  from = "/ws-levi/*"
+  to = "https://levi-backend.onrender.com/ws-levi/:splat"
+  status = 200
+  force = true
+
+# SPA fallback so deep links / refreshes on client-side routes (e.g.
+# /projects/3/board) don't 404 — must stay last, after the proxy rules above.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
