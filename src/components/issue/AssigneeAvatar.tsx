@@ -1,7 +1,8 @@
 import { User } from 'lucide-react';
+import { Avatar, Tooltip, Box } from '@mui/material';
 import { useGetUsersQuery } from '../../api/userApi';
 
-const COLORS = ['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-pink-500', 'bg-cyan-500', 'bg-purple-500'];
+const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EC4899', '#06B6D4', '#A855F7'];
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -21,12 +22,16 @@ interface AssigneeAvatarProps {
 // Calling useGetUsersQuery() here rather than threading a shared list down as a prop is
 // deliberate: RTK Query dedupes identical concurrent queries and shares the cached result,
 // so every card on a board resolves against one real network request, not one each — no
-// prop-drilling needed through KanbanBoard -> KanbanColumn -> KanbanCard for this.
+// prop-drilling needed through KanbanBoard -> KanbanColumn -> IssueCard for this.
 export function AssigneeAvatar({ assignedTo }: AssigneeAvatarProps) {
   const { data: users = [] } = useGetUsersQuery();
 
   if (!assignedTo) {
-    return <User className="w-3.5 h-3.5 text-slate-400" aria-label="Unassigned" />;
+    return (
+      <Box sx={{ color: 'text.disabled', display: 'flex' }} aria-label="Unassigned">
+        <User size={14} />
+      </Box>
+    );
   }
 
   // Falls back gracefully for a stale/dangling assignedTo (e.g. a user removed from the
@@ -35,11 +40,19 @@ export function AssigneeAvatar({ assignedTo }: AssigneeAvatarProps) {
   const name = user?.name ?? 'Unknown user';
 
   return (
-    <div
-      className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold text-white shrink-0 ${colorFor(assignedTo)}`}
-      title={name}
-    >
-      {initials(name)}
-    </div>
+    <Tooltip title={name}>
+      <Avatar
+        sx={{
+          width: 20,
+          height: 20,
+          fontSize: 9,
+          fontWeight: 700,
+          bgcolor: colorFor(assignedTo),
+          flexShrink: 0,
+        }}
+      >
+        {initials(name)}
+      </Avatar>
+    </Tooltip>
   );
 }

@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import { useCreateIssueMutation } from '../../api/issueApi';
 import { useGetUsersQuery } from '../../api/userApi';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  TextField,
+  Stack,
+  ToggleButtonGroup,
+  ToggleButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+} from '@mui/material';
 import { toast } from 'sonner';
 
 interface CreateIssueModalProps {
@@ -70,84 +76,70 @@ export function CreateIssueModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Create Issue</DialogTitle>
-            <DialogDescription>
-              Add a new issue to <span className="font-semibold text-slate-700">{workflowStateName}</span>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="issue-title">Title</Label>
-              <Input
-                id="issue-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Describe the issue..."
-                required
-                autoFocus
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="issue-description">Description</Label>
-              <Input
-                id="issue-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional details..."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="issue-type">Type</Label>
-              <div className="flex gap-2">
-                {(['TASK', 'BUG', 'STORY'] as const).map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setIssueType(t)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all ${
-                      issueType === t
-                        ? t === 'BUG'
-                          ? 'bg-red-100 text-red-700 border-red-300'
-                          : t === 'STORY'
-                          ? 'bg-purple-100 text-purple-700 border-purple-300'
-                          : 'bg-blue-100 text-blue-700 border-blue-300'
-                        : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="issue-assignee">Assignee</Label>
-              <select
-                id="issue-assignee"
+    <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="xs" fullWidth>
+      <form onSubmit={handleSubmit}>
+        <DialogTitle>Create Issue</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Add a new issue to <Typography component="span" sx={{ fontWeight: 600, color: 'text.primary' }}>{workflowStateName}</Typography>
+          </DialogContentText>
+          <Stack spacing={2.5}>
+            <TextField
+              autoFocus
+              fullWidth
+              required
+              label="Title"
+              placeholder="Describe the issue..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              placeholder="Optional details..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <FormControl>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                Type
+              </Typography>
+              <ToggleButtonGroup
+                exclusive
+                size="small"
+                value={issueType}
+                onChange={(_, val) => val && setIssueType(val)}
+              >
+                <ToggleButton value="TASK">Task</ToggleButton>
+                <ToggleButton value="BUG">Bug</ToggleButton>
+                <ToggleButton value="STORY">Story</ToggleButton>
+              </ToggleButtonGroup>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="issue-assignee-label">Assignee</InputLabel>
+              <Select
+                labelId="issue-assignee-label"
+                label="Assignee"
                 value={assignedTo}
                 onChange={(e) => setAssignedTo(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2"
               >
-                <option value="">Unassigned</option>
+                <MenuItem value="">Unassigned</MenuItem>
                 {users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
+                  <MenuItem key={u.id} value={u.id}>{u.name}</MenuItem>
                 ))}
-              </select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading || !title.trim()}>
-              {isLoading ? 'Creating...' : 'Create Issue'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+              </Select>
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button variant="outlined" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={isLoading || !title.trim()}>
+            {isLoading ? 'Creating...' : 'Create Issue'}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

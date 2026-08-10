@@ -6,6 +6,7 @@ import Login from "../pages/auth/Login";
 import OrgLogin from "../pages/auth/OrgLogin";
 import Register from "../pages/auth/Register";
 import OrgRegister from "../pages/auth/OrgRegister";
+import Landing from "../pages/marketing/Landing";
 import ProjectsDashboard from "../pages/projects/ProjectsDashboard";
 import ProjectDetail from "../pages/projects/ProjectDetail";
 import OrganizationPage from "../pages/organization/OrganizationPage";
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
     element: <App />,
     errorElement: <GlobalErrorBoundary />,
     children: [
+      {
+        index: true,
+        element: <Landing />,
+      },
       {
         path: "login",
         element: <Login />,

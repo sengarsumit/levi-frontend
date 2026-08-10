@@ -8,9 +8,10 @@ import { useDispatch } from 'react-redux';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import SprintSection from '../../components/backlog/SprintSection';
 import BacklogList from '../../components/backlog/BacklogList';
-import IssueCard from '../../components/issue/IssueCard';
+import { IssueCard } from '../../components/issue/IssueCard';
 import { IssueDrawer } from '../../components/issue/IssueDrawer';
 import type { Issue } from '../../types';
+import { Box, Stack, Typography, Button, Skeleton } from '@mui/material';
 
 export default function BacklogPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,7 @@ export default function BacklogPage() {
 
   const { data: sprints = [], isLoading: loadingSprints } = useGetSprintsByProjectQuery(projectId);
   const { data: allIssues = [], isLoading: loadingIssues } = useGetIssuesByProjectQuery(projectId);
-  
+
   const [createSprint] = useCreateSprintMutation();
   const [updateSprint] = useUpdateSprintMutation();
   const [updateIssue] = useUpdateIssueMutation();
@@ -89,62 +90,68 @@ export default function BacklogPage() {
     });
   };
 
-  if (loadingSprints || loadingIssues) return <div className="p-8">Loading backlog...</div>;
+  if (loadingSprints || loadingIssues) {
+    return (
+      <Stack spacing={2}>
+        <Skeleton variant="text" width={192} height={40} />
+        <Skeleton variant="rounded" height={200} sx={{ borderRadius: 3 }} />
+      </Stack>
+    );
+  }
 
   return (
-      <div className="p-8 max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Backlog</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Plan sprints and prioritize work</p>
-          </div>
-          <button
-            onClick={handleCreateSprint}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg font-medium transition-colors"
-          >
-            Create Sprint
-          </button>
-        </div>
+    <Box sx={{ maxWidth: 960, mx: 'auto' }}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>Backlog</Typography>
+          <Typography variant="body1" sx={{ color: 'text.secondary', mt: 0.5 }}>
+            Plan sprints and prioritize work
+          </Typography>
+        </Box>
+        <Button variant="outlined" color="inherit" onClick={handleCreateSprint}>
+          Create Sprint
+        </Button>
+      </Stack>
 
-        <DndContext
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="space-y-6">
-            {sprints.map(sprint => (
-              <SprintSection
-                key={sprint.id}
-                sprint={sprint}
-                issues={issuesBySprint.get(sprint.id) || []}
-                onStartSprint={() => updateSprint({ ...sprint, status: 'ACTIVE' })}
-                onCompleteSprint={() => updateSprint({ ...sprint, status: 'COMPLETED' })}
-                onIssueClick={setSelectedIssue}
-              />
-            ))}
-
-            <BacklogList
-              issues={backlogIssues}
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <Stack spacing={3}>
+          {sprints.map(sprint => (
+            <SprintSection
+              key={sprint.id}
+              sprint={sprint}
+              issues={issuesBySprint.get(sprint.id) || []}
+              onStartSprint={() => updateSprint({ ...sprint, status: 'ACTIVE' })}
+              onCompleteSprint={() => updateSprint({ ...sprint, status: 'COMPLETED' })}
               onIssueClick={setSelectedIssue}
             />
-          </div>
+          ))}
 
-          <DragOverlay>
-            {activeIssue ? (
-              <div className="opacity-90 transform rotate-2">
-                <IssueCard issue={activeIssue} />
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-
-        {selectedIssue && (
-          <IssueDrawer
-            issueId={selectedIssue.id}
-            projectId={projectId}
-            onClose={() => setSelectedIssue(null)}
+          <BacklogList
+            issues={backlogIssues}
+            onIssueClick={setSelectedIssue}
           />
-        )}
-      </div>
+        </Stack>
+
+        <DragOverlay>
+          {activeIssue ? (
+            <Box sx={{ transform: 'rotate(2deg)', opacity: 0.9 }}>
+              <IssueCard issue={activeIssue} sortableId={`issue-${activeIssue.id}`} />
+            </Box>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {selectedIssue && (
+        <IssueDrawer
+          issueId={selectedIssue.id}
+          projectId={projectId}
+          onClose={() => setSelectedIssue(null)}
+        />
+      )}
+    </Box>
   );
 }

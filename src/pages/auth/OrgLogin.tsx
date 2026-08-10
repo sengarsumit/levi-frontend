@@ -4,10 +4,8 @@ import { useDispatch } from "react-redux";
 import { useLoginMutation } from "../../api/authApi";
 import { useJoinOrgMutation } from "../../api/organizationApi";
 import { setCredentials } from "../../features/auth/authSlice";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stack, TextField, Button, Typography } from "@mui/material";
+import { AuthCard } from "../../components/auth/AuthCard";
 import { toast } from "sonner";
 
 export default function OrgLogin() {
@@ -45,11 +43,11 @@ export default function OrgLogin() {
   const handleRequestAccess = async () => {
     if (!orgSlug) return;
     try {
-      // To request access, we must be logged in. 
+      // To request access, we must be logged in.
       // We will perform a general login first.
       const userData = await login({ email, password }).unwrap();
       dispatch(setCredentials({ token: userData.token, user: userData.user }));
-      
+
       await joinOrg(orgSlug).unwrap();
       toast.success("Access requested successfully! Please wait for approval.");
       setNeedsAccess(false);
@@ -61,60 +59,68 @@ export default function OrgLogin() {
   const isLoading = isLoggingIn || isJoining;
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold capitalize">{orgSlug} Login</CardTitle>
-          <CardDescription>Enter your email to sign in to the organization</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            {needsAccess ? (
-              <Button type="button" onClick={handleRequestAccess} className="w-full" disabled={isLoading}>
-                {isJoining ? "Requesting..." : "Request Access to Organization"}
-              </Button>
-            ) : (
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoggingIn ? "Signing in..." : "Sign in"}
-              </Button>
-            )}
-            <div className="flex flex-col space-y-2 text-sm text-center text-slate-500">
-              <div>
-                Don't have an account?{" "}
-                <Link to={`/register/${orgSlug}`} className="font-medium text-slate-900 hover:underline">
-                  Sign up for {orgSlug}
-                </Link>
-              </div>
-              <div>
-                Go back to <Link to="/login" className="font-medium text-slate-900 hover:underline">General Login</Link>
-              </div>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+    <AuthCard
+      title={`${orgSlug} Login`}
+      description="Enter your email to sign in to the organization"
+    >
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={2.5}>
+          <TextField
+            label="Email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            required
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {needsAccess ? (
+            <Button
+              type="button"
+              onClick={handleRequestAccess}
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={isLoading}
+            >
+              {isJoining ? "Requesting..." : "Request Access to Organization"}
+            </Button>
+          ) : (
+            <Button type="submit" variant="contained" size="large" fullWidth disabled={isLoading}>
+              {isLoggingIn ? "Signing in..." : "Sign in"}
+            </Button>
+          )}
+
+          <Stack spacing={0.5} sx={{ textAlign: "center" }}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Don't have an account?{" "}
+              <Typography
+                component={Link}
+                to={`/register/${orgSlug}`}
+                variant="body2"
+                sx={{ fontWeight: 600, color: "text.primary" }}
+              >
+                Sign up for {orgSlug}
+              </Typography>
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Go back to{" "}
+              <Typography component={Link} to="/login" variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
+                General Login
+              </Typography>
+            </Typography>
+          </Stack>
+        </Stack>
+      </form>
+    </AuthCard>
   );
 }

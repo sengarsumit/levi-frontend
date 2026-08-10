@@ -1,12 +1,42 @@
-import { Outlet } from "react-router";
-import { Link } from "react-router";
-import { LogOut, FolderKanban, Settings, Home, Building } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { Outlet, Link, useNavigate } from "react-router";
+import { LogOut, FolderKanban, Settings, Building, KanbanSquare, Menu as MenuIcon } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Box,
+  Drawer,
+  AppBar,
+  Toolbar,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  IconButton,
+  Tooltip,
+  Divider,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { logout } from "../../features/auth/authSlice";
+import type { RootState } from "../../app/store";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
+import { ThemeToggle } from "../common/ThemeToggle";
+
+const DRAWER_WIDTH = 256;
+
+const navItems = [
+  { label: "Projects", to: "/projects", icon: FolderKanban },
+  { label: "Organization", to: "/organization", icon: Building },
+];
 
 const MainLayout = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const currentTenantId = useSelector((state: RootState) => state.organization.currentTenantId);
 
   // Redirecting to the right login page (org-specific vs generic) after sign-out is handled
   // by ProtectedRoute, not here — dispatching logout() and then also calling navigate() in
@@ -16,66 +46,120 @@ const MainLayout = () => {
     dispatch(logout());
   };
 
-  return (
-    <div className="flex h-screen w-full bg-slate-50 text-slate-900">
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 border-r bg-white flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b font-bold text-xl tracking-tight">
-          Project Levi
-        </div>
-        <nav className="flex-1 overflow-y-auto py-4">
-          <ul className="space-y-1 px-3">
-            <li>
-              <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 font-medium">
-                <Home className="w-5 h-5 text-slate-500" />
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <Link to="/projects" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 font-medium">
-                <FolderKanban className="w-5 h-5 text-slate-500" />
-                Projects
-              </Link>
-            </li>
-            <li>
-              <Link to="/organization" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-100 font-medium">
-                <Building className="w-5 h-5 text-slate-500" />
-                Organization
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        <div className="p-4 border-t">
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-md hover:bg-red-50 text-red-600 font-medium transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-            Sign Out
-          </button>
-        </div>
-      </aside>
+  const handleSettings = () => {
+    if (currentTenantId) {
+      navigate(`/organization/${currentTenantId}/settings`);
+    }
+  };
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-16 flex items-center justify-between px-8 border-b bg-white shrink-0">
-          <div className="font-medium text-slate-800">
-            <WorkspaceSwitcher />
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
-              <Settings className="w-5 h-5" />
-            </button>
-          </div>
-        </header>
-        
-        <main className="flex-1 overflow-y-auto p-8">
-          <div className="mx-auto max-w-6xl">
+  const drawerContent = (
+    <>
+      <Toolbar sx={{ gap: 1, px: 3 }}>
+        <KanbanSquare size={24} strokeWidth={2.2} />
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Levi
+        </Typography>
+      </Toolbar>
+      <Divider />
+      <List sx={{ flex: 1, py: 2, px: 1.5 }}>
+        {navItems.map(({ label, to, icon: Icon }) => (
+          <ListItemButton
+            key={to}
+            component={Link}
+            to={to}
+            onClick={() => setMobileOpen(false)}
+            sx={{ borderRadius: 2, mb: 0.5 }}
+          >
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <Icon size={20} />
+            </ListItemIcon>
+            <ListItemText primary={label} slotProps={{ primary: { sx: { fontWeight: 500 } } }} />
+          </ListItemButton>
+        ))}
+      </List>
+      <Divider />
+      <Box sx={{ p: 1.5 }}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            borderRadius: 2,
+            color: "error.main",
+            "&:hover": { bgcolor: "error.main", color: "error.contrastText" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
+            <LogOut size={20} />
+          </ListItemIcon>
+          <ListItemText primary="Sign Out" slotProps={{ primary: { sx: { fontWeight: 500 } } }} />
+        </ListItemButton>
+      </Box>
+    </>
+  );
+
+  return (
+    <Box sx={{ display: "flex", height: "100vh", width: "100%" }}>
+      {isMobile ? (
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          ModalProps={{ keepMounted: true }}
+          sx={{ "& .MuiDrawer-paper": { width: DRAWER_WIDTH, boxSizing: "border-box" } }}
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: DRAWER_WIDTH,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: DRAWER_WIDTH,
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
+
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <AppBar
+          position="static"
+          color="inherit"
+          elevation={0}
+          sx={{ borderBottom: 1, borderColor: "divider" }}
+        >
+          <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, md: 4 }, gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+              {isMobile && (
+                <IconButton onClick={() => setMobileOpen(true)} color="inherit" edge="start">
+                  <MenuIcon size={20} />
+                </IconButton>
+              )}
+              <WorkspaceSwitcher />
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <ThemeToggle />
+              <Tooltip title="Organization settings">
+                <IconButton onClick={handleSettings} color="inherit">
+                  <Settings size={20} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Toolbar>
+        </AppBar>
+
+        <Box component="main" sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", p: { xs: 2, sm: 3, md: 4 } }}>
+          <Box sx={{ mx: "auto", maxWidth: 1152 }}>
             <Outlet />
-          </div>
-        </main>
-      </div>
-    </div>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

@@ -6,6 +6,17 @@ import { getCurrentUserId } from '../../lib/jwt';
 import { formatDistanceToNow } from 'date-fns';
 import { Pencil, Trash2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  Box,
+  Stack,
+  Avatar,
+  Typography,
+  TextField,
+  IconButton,
+  Button,
+  Skeleton,
+  Divider,
+} from '@mui/material';
 
 interface ActivityFeedProps {
   issueId: number;
@@ -59,25 +70,25 @@ export function ActivityFeed({ issueId }: ActivityFeedProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <Stack spacing={2.5}>
       {/* Comment thread */}
-      <div className="flex flex-col gap-3">
+      <Stack spacing={1.5}>
         {isLoading ? (
-          <div className="space-y-3">
+          <Stack spacing={1.5}>
             {[1, 2].map((i) => (
-              <div key={i} className="flex gap-3 animate-pulse">
-                <div className="w-8 h-8 bg-slate-200 rounded-full shrink-0" />
-                <div className="flex-1 space-y-1.5">
-                  <div className="h-3 w-24 bg-slate-200 rounded" />
-                  <div className="h-10 bg-slate-100 rounded-lg" />
-                </div>
-              </div>
+              <Stack key={i} direction="row" spacing={1.5}>
+                <Skeleton variant="circular" width={32} height={32} />
+                <Stack spacing={0.5} sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width={96} />
+                  <Skeleton variant="rounded" height={40} />
+                </Stack>
+              </Stack>
             ))}
-          </div>
+          </Stack>
         ) : comments.length === 0 ? (
-          <p className="text-xs text-slate-400 italic text-center py-4">
+          <Typography variant="caption" sx={{ color: 'text.disabled', fontStyle: 'italic', textAlign: 'center', py: 2 }}>
             No comments yet. Be the first to comment!
-          </p>
+          </Typography>
         ) : (
           comments.map((comment: {
             id: number;
@@ -91,82 +102,83 @@ export function ActivityFeed({ issueId }: ActivityFeedProps) {
             const authorName = getUserName(comment.userId);
 
             return (
-              <div
+              <Stack
                 key={comment.id}
-                className={`flex gap-3 group ${comment.replyTo ? 'ml-8 border-l-2 border-indigo-100 pl-3' : ''}`}
+                direction="row"
+                spacing={1.5}
+                sx={comment.replyTo ? { ml: 4, pl: 1.5, borderLeft: 2, borderColor: 'primary.light' } : undefined}
               >
-                {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5">
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    mt: 0.25,
+                    background: 'linear-gradient(135deg, #6366F1, #A855F7)',
+                  }}
+                >
                   {getInitials(authorName)}
-                </div>
+                </Avatar>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-slate-700">{authorName}</span>
-                    <span className="text-xs text-slate-400">
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 0.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                      {authorName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                       {comment.createdAt
                         ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
                         : ''}
-                    </span>
+                    </Typography>
                     {isOwner && !isEditing && (
-                      <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => startEdit(comment.id, comment.comment)}
-                          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-colors"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(comment.id)}
-                          className="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
+                      <Stack direction="row" spacing={0.25} sx={{ ml: 'auto' }}>
+                        <IconButton size="small" onClick={() => startEdit(comment.id, comment.comment)}>
+                          <Pencil size={12} />
+                        </IconButton>
+                        <IconButton size="small" color="error" onClick={() => handleDelete(comment.id)}>
+                          <Trash2 size={12} />
+                        </IconButton>
+                      </Stack>
                     )}
-                  </div>
+                  </Stack>
 
                   {isEditing ? (
-                    <div className="space-y-2">
-                      <textarea
+                    <Stack spacing={1}>
+                      <TextField
                         value={editText}
                         onChange={(e) => setEditText(e.target.value)}
+                        multiline
                         rows={2}
                         autoFocus
-                        className="w-full rounded-md border border-indigo-300 px-2 py-1.5 text-sm resize-none
-                          focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                        fullWidth
+                        size="small"
                       />
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => saveEdit(comment.id)}
-                          className="flex items-center gap-1 px-2 py-1 rounded bg-indigo-500 text-white text-xs hover:bg-indigo-600 transition-colors"
-                        >
-                          <Check className="w-3 h-3" /> Save
-                        </button>
-                        <button
-                          onClick={cancelEdit}
-                          className="flex items-center gap-1 px-2 py-1 rounded bg-slate-100 text-slate-600 text-xs hover:bg-slate-200 transition-colors"
-                        >
-                          <X className="w-3 h-3" /> Cancel
-                        </button>
-                      </div>
-                    </div>
+                      <Stack direction="row" spacing={1}>
+                        <Button size="small" variant="contained" startIcon={<Check size={12} />} onClick={() => saveEdit(comment.id)}>
+                          Save
+                        </Button>
+                        <Button size="small" color="inherit" startIcon={<X size={12} />} onClick={cancelEdit}>
+                          Cancel
+                        </Button>
+                      </Stack>
+                    </Stack>
                   ) : (
-                    <div className="text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2 leading-relaxed">
-                      {comment.comment}
-                    </div>
+                    <Box sx={{ bgcolor: 'action.hover', borderRadius: 2, px: 1.5, py: 1 }}>
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {comment.comment}
+                      </Typography>
+                    </Box>
                   )}
-                </div>
-              </div>
+                </Box>
+              </Stack>
             );
           })
         )}
-      </div>
+      </Stack>
 
-      {/* New comment input */}
-      <div className="border-t border-slate-100 pt-4">
-        <CommentBox issueId={issueId} />
-      </div>
-    </div>
+      <Divider />
+      <CommentBox issueId={issueId} />
+    </Stack>
   );
 }

@@ -10,19 +10,13 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import { Stack, Box } from '@mui/material';
 import { KanbanColumn } from './KanbanColumn';
-import { KanbanCard } from './KanbanCard';
+import { IssueCard } from '../issue/IssueCard';
 import { IssueDrawer } from '../issue/IssueDrawer';
 import { useMoveIssueMutation } from '../../api/issueApi';
 import { toast } from 'sonner';
-
-interface Issue {
-  id: number;
-  title: string;
-  issueType: string;
-  workflowStateId?: number;
-  assignedTo?: string;
-}
+import type { Issue } from '../../types';
 
 interface WorkflowState {
   id: number;
@@ -125,7 +119,7 @@ export function KanbanBoard({ columns, issues, projectId, boardId }: KanbanBoard
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-5 overflow-x-auto pb-4 items-start">
+        <Stack direction="row" spacing={2.5} sx={{ overflowX: 'auto', pb: 2, alignItems: 'flex-start' }}>
           {sortedColumns.map((column) => (
             <KanbanColumn
               key={column.id}
@@ -136,13 +130,13 @@ export function KanbanBoard({ columns, issues, projectId, boardId }: KanbanBoard
               onCardClick={(issue) => setSelectedIssueId(issue.id)}
             />
           ))}
-        </div>
+        </Stack>
 
         <DragOverlay>
           {activeIssue ? (
-            <div className="rotate-2 opacity-90">
-              <KanbanCard issue={activeIssue} onClick={() => {}} />
-            </div>
+            <Box sx={{ transform: 'rotate(2deg)', opacity: 0.9 }}>
+              <IssueCard issue={activeIssue} sortableId={activeIssue.id} />
+            </Box>
           ) : null}
         </DragOverlay>
       </DndContext>

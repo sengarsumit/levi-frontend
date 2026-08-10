@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { useCreateOrganizationMutation } from "../../api/organizationApi";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  TextField,
+} from "@mui/material";
 import { toast } from "sonner";
 
 interface CreateWorkspaceModalProps {
@@ -37,37 +35,32 @@ export function CreateWorkspaceModal({ open, onOpenChange }: CreateWorkspaceModa
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Create Workspace</DialogTitle>
-            <DialogDescription>
-              Create a new workspace to organize your projects and team.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Workspace Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Acme Corp"
-                required
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+    <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="xs" fullWidth>
+      <form onSubmit={handleSubmit}>
+        <DialogTitle>Create Workspace</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Create a new workspace to organize your projects and team.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            fullWidth
+            required
+            label="Workspace Name"
+            placeholder="Acme Corp"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button variant="outlined" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create"}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

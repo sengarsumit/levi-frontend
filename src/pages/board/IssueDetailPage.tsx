@@ -1,9 +1,9 @@
 import { useParams, Link } from 'react-router';
 import { useGetIssueByIdQuery } from '../../api/issueApi';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { IssueTypeBadge } from '../../components/issue/IssueBadge';
 import { format } from 'date-fns';
+import { Box, Stack, Typography, Button, Card, CardContent, Skeleton, Grid } from '@mui/material';
 
 export default function IssueDetailPage() {
   const { issueId } = useParams<{ issueId: string }>();
@@ -11,61 +11,71 @@ export default function IssueDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 bg-slate-100 rounded animate-pulse" />
-        <div className="h-64 bg-slate-100 rounded-xl animate-pulse" />
-      </div>
+      <Stack spacing={2}>
+        <Skeleton variant="text" width={192} height={40} />
+        <Skeleton variant="rounded" height={256} sx={{ borderRadius: 3 }} />
+      </Stack>
     );
   }
 
   if (error || !issue) {
     return (
-      <div className="text-center py-16">
-        <h2 className="text-xl font-semibold text-slate-900">Issue not found</h2>
-        <Link to="/projects">
-          <Button variant="outline" className="mt-4">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects
-          </Button>
-        </Link>
-      </div>
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>Issue not found</Typography>
+        <Button component={Link} to="/projects" variant="outlined" startIcon={<ArrowLeft size={16} />} sx={{ mt: 2 }}>
+          Back to Projects
+        </Button>
+      </Box>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Link to={`/projects/${issue.projectId}`}>
-        <Button variant="ghost" size="sm">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Project
+    <Stack spacing={3} sx={{ maxWidth: 672, mx: 'auto' }}>
+      <Box>
+        <Button component={Link} to={`/projects/${issue.projectId}`} size="small" color="inherit" startIcon={<ArrowLeft size={16} />}>
+          Back to Project
         </Button>
-      </Link>
+      </Box>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <IssueTypeBadge type={issue.issueType} />
-          <span className="text-xs text-slate-400 font-mono">#{issue.id}</span>
-        </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Stack spacing={2}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <IssueTypeBadge type={issue.issueType} />
+              <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'monospace' }}>
+                #{issue.id}
+              </Typography>
+            </Stack>
 
-        <h1 className="text-2xl font-bold text-slate-900">{issue.title}</h1>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>{issue.title}</Typography>
 
-        {issue.description && (
-          <p className="text-slate-600 leading-relaxed">{issue.description}</p>
-        )}
+            {issue.description && (
+              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                {issue.description}
+              </Typography>
+            )}
 
-        <div className="border-t border-slate-100 pt-4 grid grid-cols-2 gap-4 text-sm">
-          {issue.createdAt && (
-            <div className="flex items-center gap-2 text-slate-500">
-              <Calendar className="w-4 h-4" />
-              <span>Created: {format(new Date(issue.createdAt), 'MMM d, yyyy')}</span>
-            </div>
-          )}
-          {issue.timeTakenHours != null && (
-            <div className="flex items-center gap-2 text-emerald-600 font-medium">
-              <Clock className="w-4 h-4" />
-              <span>Time Taken: {issue.timeTakenHours} hours</span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+            <Grid container spacing={2} sx={{ pt: 2, borderTop: 1, borderColor: 'divider' }}>
+              {issue.createdAt && (
+                <Grid size={6}>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', color: 'text.secondary' }}>
+                    <Calendar size={16} />
+                    <Typography variant="body2">Created: {format(new Date(issue.createdAt), 'MMM d, yyyy')}</Typography>
+                  </Stack>
+                </Grid>
+              )}
+              {issue.timeTakenHours != null && (
+                <Grid size={6}>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', color: 'success.main', fontWeight: 500 }}>
+                    <Clock size={16} />
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>Time Taken: {issue.timeTakenHours} hours</Typography>
+                  </Stack>
+                </Grid>
+              )}
+            </Grid>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Stack>
   );
 }

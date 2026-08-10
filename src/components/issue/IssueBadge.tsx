@@ -1,3 +1,6 @@
+import { Chip, Stack, Box, Typography } from '@mui/material';
+import type { ChipProps } from '@mui/material';
+
 interface IssueBadgeProps {
   type: string;
 }
@@ -6,32 +9,36 @@ interface PriorityBadgeProps {
   priority?: string;
 }
 
-const issueTypeConfig: Record<string, { label: string; color: string }> = {
-  BUG: { label: 'Bug', color: 'bg-red-100 text-red-700' },
-  TASK: { label: 'Task', color: 'bg-blue-100 text-blue-700' },
-  STORY: { label: 'Story', color: 'bg-purple-100 text-purple-700' },
+const issueTypeConfig: Record<string, { label: string; color: ChipProps['color'] }> = {
+  BUG: { label: 'Bug', color: 'error' },
+  TASK: { label: 'Task', color: 'info' },
+  STORY: { label: 'Story', color: 'secondary' },
 };
 
 export function IssueTypeBadge({ type }: IssueBadgeProps) {
-  const config = issueTypeConfig[type?.toUpperCase()] ?? { label: type, color: 'bg-slate-100 text-slate-600' };
+  const config = issueTypeConfig[type?.toUpperCase()] ?? { label: type, color: 'default' as const };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${config.color}`}>
-      {config.label}
-    </span>
+    <Chip
+      label={config.label}
+      color={config.color}
+      size="small"
+      sx={{ fontWeight: 600, height: 20, fontSize: 11 }}
+    />
   );
 }
 
+const priorityConfig: Record<string, { label: string; color: string }> = {
+  HIGH: { label: 'High', color: 'error.main' },
+  MEDIUM: { label: 'Medium', color: 'warning.main' },
+  LOW: { label: 'Low', color: 'success.main' },
+};
+
 export function PriorityBadge({ priority }: PriorityBadgeProps) {
-  const config: Record<string, { label: string; dot: string }> = {
-    HIGH: { label: 'High', dot: 'bg-red-500' },
-    MEDIUM: { label: 'Medium', dot: 'bg-yellow-500' },
-    LOW: { label: 'Low', dot: 'bg-green-500' },
-  };
-  const c = config[priority?.toUpperCase() ?? ''] ?? { label: priority ?? '—', dot: 'bg-slate-400' };
+  const c = priorityConfig[priority?.toUpperCase() ?? ''] ?? { label: priority ?? '—', color: 'text.disabled' };
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-      <span className={`w-2 h-2 rounded-full ${c.dot}`} />
-      {c.label}
-    </span>
+    <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', color: 'text.secondary' }}>
+      <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: c.color }} />
+      <Typography variant="caption">{c.label}</Typography>
+    </Stack>
   );
 }

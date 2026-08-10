@@ -1,10 +1,20 @@
 import { useParams, Link } from "react-router";
 import { useGetProjectByIdQuery } from "../../api/projectApi";
 import { useGetIssuesByProjectQuery } from "../../api/issueApi";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ArrowLeft, FolderKanban, Calendar, CheckSquare, Kanban, ListTodo } from "lucide-react";
 import { format } from "date-fns";
+import {
+  Box,
+  Stack,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  CardActionArea,
+  Grid,
+  Chip,
+  Skeleton,
+} from "@mui/material";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -14,144 +24,164 @@ export default function ProjectDetail() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-48 bg-slate-100 rounded animate-pulse" />
-        <div className="h-64 bg-slate-100 rounded-xl animate-pulse" />
-      </div>
+      <Stack spacing={3}>
+        <Skeleton variant="text" width={192} height={40} />
+        <Skeleton variant="rounded" height={256} sx={{ borderRadius: 3 }} />
+      </Stack>
     );
   }
 
   if (error || !project) {
     return (
-      <div className="text-center py-16">
-        <h2 className="text-xl font-semibold text-slate-900">Project not found</h2>
-        <Link to="/projects">
-          <Button variant="outline" className="mt-4">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects
-          </Button>
-        </Link>
-      </div>
+      <Box sx={{ textAlign: "center", py: 8 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          Project not found
+        </Typography>
+        <Button component={Link} to="/projects" variant="outlined" startIcon={<ArrowLeft size={16} />} sx={{ mt: 2 }}>
+          Back to Projects
+        </Button>
+      </Box>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/projects">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back
-          </Button>
-        </Link>
-      </div>
+    <Stack spacing={3}>
+      <Box>
+        <Button component={Link} to="/projects" size="small" color="inherit" startIcon={<ArrowLeft size={16} />}>
+          Back
+        </Button>
+      </Box>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600">
-            <FolderKanban className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">{project.name}</h1>
-            <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ alignItems: { sm: "center" }, justifyContent: "space-between" }}
+      >
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+          <Box
+            sx={{
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+              p: 1.5,
+              borderRadius: 3,
+              display: "flex",
+            }}
+          >
+            <FolderKanban size={28} />
+          </Box>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              {project.name}
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary", letterSpacing: 0.5 }}>
               {project.projectKey}
-            </span>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Link to={`/projects/${id}/backlog`}>
-            <Button variant="outline" className="flex items-center gap-2">
-              <ListTodo className="w-4 h-4" />
-              Backlog
-            </Button>
-          </Link>
-          <Link to={`/projects/${id}/board`}>
-            <Button className="flex items-center gap-2">
-              <Kanban className="w-4 h-4" />
-              Open Board
-            </Button>
-          </Link>
-        </div>
-      </div>
+            </Typography>
+          </Box>
+        </Stack>
+        <Stack direction="row" spacing={1.5}>
+          <Button component={Link} to={`/projects/${id}/backlog`} variant="outlined" startIcon={<ListTodo size={16} />}>
+            Backlog
+          </Button>
+          <Button component={Link} to={`/projects/${id}/board`} variant="contained" startIcon={<Kanban size={16} />}>
+            Open Board
+          </Button>
+        </Stack>
+      </Stack>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-slate-500">Status</h3>
-          </CardHeader>
-          <CardContent>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              project.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'
-            }`}>
-              {project.status}
-            </span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-slate-500">Created</h3>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold">
-              {project.createdAt ? format(new Date(project.createdAt), 'MMM d, yyyy') : 'N/A'}
-            </span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <h3 className="text-sm font-medium text-slate-500">Issues</h3>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2">
-            <CheckSquare className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold">{issues.length} Issues</span>
-          </CardContent>
-        </Card>
-      </div>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                STATUS
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                <Chip
+                  label={project.status}
+                  size="small"
+                  color={project.status === "ACTIVE" ? "success" : "default"}
+                  sx={{ fontWeight: 600 }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                CREATED
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center", mt: 1, color: "text.secondary" }}>
+                <Calendar size={16} />
+                <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
+                  {project.createdAt ? format(new Date(project.createdAt), "MMM d, yyyy") : "N/A"}
+                </Typography>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                ISSUES
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center", mt: 1, color: "text.secondary" }}>
+                <CheckSquare size={16} />
+                <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
+                  {issues.length} Issues
+                </Typography>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       {project.description && (
-        <Card>
-          <CardHeader>
-            <h3 className="text-sm font-medium text-slate-500">Description</h3>
-          </CardHeader>
+        <Card variant="outlined" sx={{ borderRadius: 3 }}>
           <CardContent>
-            <p className="text-slate-700">{project.description}</p>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+              DESCRIPTION
+            </Typography>
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {project.description}
+            </Typography>
           </CardContent>
         </Card>
       )}
 
-      {/* Quick link to board */}
-      <Card className="border-dashed border-2 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group">
-        <Link to={`/projects/${id}/board`} className="block">
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600 group-hover:bg-indigo-200 transition-colors">
-              <Kanban className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="font-semibold text-slate-800">Kanban Board</p>
-              <p className="text-sm text-slate-500">
-                View and manage issues across workflow columns
-              </p>
-            </div>
-            <ArrowLeft className="w-5 h-5 text-slate-400 ml-auto rotate-180 group-hover:text-indigo-500 transition-colors" />
-          </CardContent>
-        </Link>
-      </Card>
-
-      <Card className="border-dashed border-2 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group">
-        <Link to={`/projects/${id}/backlog`} className="block">
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="bg-indigo-100 p-3 rounded-xl text-indigo-600 group-hover:bg-indigo-200 transition-colors">
-              <ListTodo className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="font-semibold text-slate-800">Sprint Backlog</p>
-              <p className="text-sm text-slate-500">
-                Plan sprints, prioritize issues, and manage backlog
-              </p>
-            </div>
-            <ArrowLeft className="w-5 h-5 text-slate-400 ml-auto rotate-180 group-hover:text-indigo-500 transition-colors" />
-          </CardContent>
-        </Link>
-      </Card>
-    </div>
+      {[
+        { to: `/projects/${id}/board`, icon: Kanban, title: "Kanban Board", desc: "View and manage issues across workflow columns" },
+        { to: `/projects/${id}/backlog`, icon: ListTodo, title: "Sprint Backlog", desc: "Plan sprints, prioritize issues, and manage backlog" },
+      ].map(({ to, icon: Icon, title, desc }) => (
+        <Card key={to} variant="outlined" sx={{ borderRadius: 3, borderStyle: "dashed", borderWidth: 2 }}>
+          <CardActionArea component={Link} to={to} sx={{ p: 3 }}>
+            <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+              <Box
+                sx={{
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  p: 1.5,
+                  borderRadius: 3,
+                  display: "flex",
+                }}
+              >
+                <Icon size={24} />
+              </Box>
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  {title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  {desc}
+                </Typography>
+              </Box>
+              <ArrowLeft size={20} style={{ marginLeft: "auto", transform: "rotate(180deg)", opacity: 0.4 }} />
+            </Stack>
+          </CardActionArea>
+        </Card>
+      ))}
+    </Stack>
   );
 }

@@ -1,17 +1,11 @@
 import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { KanbanCard } from './KanbanCard';
+import { Box, Stack, Typography, IconButton, Button } from '@mui/material';
+import { IssueCard } from '../issue/IssueCard';
 import { CreateIssueModal } from './CreateIssueModal';
 import { Plus } from 'lucide-react';
-
-interface Issue {
-  id: number;
-  title: string;
-  issueType: string;
-  workflowStateId?: number;
-  assignedTo?: string;
-}
+import type { Issue } from '../../types';
 
 interface WorkflowState {
   id: number;
@@ -27,16 +21,10 @@ interface KanbanColumnProps {
   onCardClick: (issue: Issue) => void;
 }
 
-const columnColors: Record<string, string> = {
-  'To Do': 'border-t-slate-400',
-  'In Progress': 'border-t-indigo-500',
-  'Done': 'border-t-emerald-500',
-};
-
-const columnHeaderColors: Record<string, string> = {
-  'To Do': 'bg-slate-100 text-slate-600',
-  'In Progress': 'bg-indigo-50 text-indigo-700',
-  'Done': 'bg-emerald-50 text-emerald-700',
+const columnAccent: Record<string, string> = {
+  'To Do': 'text.disabled',
+  'In Progress': 'info.main',
+  'Done': 'success.main',
 };
 
 export function KanbanColumn({ column, issues, projectId, boardId, onCardClick }: KanbanColumnProps) {
@@ -46,65 +34,70 @@ export function KanbanColumn({ column, issues, projectId, boardId, onCardClick }
     id: column.id,
   });
 
-  const borderColor = columnColors[column.name] ?? 'border-t-slate-300';
-  const headerColor = columnHeaderColors[column.name] ?? 'bg-slate-50 text-slate-600';
+  const accent = columnAccent[column.name] ?? 'text.disabled';
 
   return (
     <>
-      <div
-        className={`flex flex-col rounded-xl border border-slate-200 border-t-4 ${borderColor} bg-slate-50 min-w-[280px] max-w-[320px] w-full transition-all
-          ${isOver ? 'ring-2 ring-indigo-300 bg-indigo-50' : ''}`}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: 3,
+          border: 1,
+          borderColor: 'divider',
+          borderTop: 3,
+          borderTopColor: accent,
+          bgcolor: 'background.paper',
+          minWidth: 280,
+          maxWidth: 320,
+          width: '100%',
+          transition: 'background-color 0.15s ease',
+          ...(isOver && { bgcolor: 'action.hover' }),
+        }}
       >
-        {/* Column Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${headerColor}`}>
+        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: accent }}>
               {column.name}
-            </span>
-            <span className="text-xs font-semibold text-slate-400 tabular-nums">
+            </Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.disabled' }}>
               {issues.length}
-            </span>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-white transition-colors"
-            title="Add issue"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
+            </Typography>
+          </Stack>
+          <IconButton size="small" onClick={() => setShowCreateModal(true)} title="Add issue">
+            <Plus size={16} />
+          </IconButton>
+        </Stack>
 
-        {/* Cards drop zone */}
-        <div
-          ref={setNodeRef}
-          className="flex-1 flex flex-col gap-2 p-3 min-h-[120px]"
-        >
-          <SortableContext
-            items={issues.map((i) => i.id)}
-            strategy={verticalListSortingStrategy}
-          >
+        <Stack spacing={1} sx={{ flex: 1, p: 1.5, minHeight: 120 }} ref={setNodeRef}>
+          <SortableContext items={issues.map((i) => i.id)} strategy={verticalListSortingStrategy}>
             {issues.map((issue) => (
-              <KanbanCard key={issue.id} issue={issue} onClick={onCardClick} />
+              <IssueCard key={issue.id} issue={issue} sortableId={issue.id} onClick={onCardClick} />
             ))}
           </SortableContext>
           {issues.length === 0 && (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-xs text-slate-400 italic">Drop issues here</p>
-            </div>
+            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="caption" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                Drop issues here
+              </Typography>
+            </Box>
           )}
-        </div>
+        </Stack>
 
-        {/* Add issue button at bottom */}
-        <div className="px-3 pb-3">
-          <button
+        <Box sx={{ px: 1.5, pb: 1.5 }}>
+          <Button
+            fullWidth
+            size="small"
+            variant="outlined"
+            color="inherit"
+            startIcon={<Plus size={14} />}
             onClick={() => setShowCreateModal(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all border border-dashed border-slate-300 hover:border-indigo-300"
+            sx={{ borderStyle: 'dashed', color: 'text.secondary' }}
           >
-            <Plus className="w-3.5 h-3.5" />
             Add Issue
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
 
       <CreateIssueModal
         open={showCreateModal}

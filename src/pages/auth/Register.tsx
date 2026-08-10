@@ -3,10 +3,8 @@ import { useNavigate, Link } from "react-router";
 import { useDispatch } from "react-redux";
 import { useRegisterMutation } from "../../api/authApi";
 import { setCredentials } from "../../features/auth/authSlice";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stack, TextField, Button, Typography } from "@mui/material";
+import { AuthCard } from "../../components/auth/AuthCard";
 import { toast } from "sonner";
 
 export default function Register() {
@@ -30,60 +28,46 @@ export default function Register() {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>Enter your details below to create your account</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input 
-                id="name" 
-                type="text" 
-                placeholder="John Doe" 
-                required 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create account"}
-            </Button>
-            <div className="text-sm text-center text-slate-500">
-              Already have an account?{" "}
-              <Link to="/login" className="font-medium text-slate-900 hover:underline">
-                Sign in
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+    <AuthCard title="Create an account" description="Enter your details below to create your account">
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={2.5}>
+          <TextField
+            label="Full Name"
+            type="text"
+            placeholder="John Doe"
+            required
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            label="Email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            required
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" variant="contained" size="large" fullWidth disabled={isLoading}>
+            {isLoading ? "Creating account..." : "Create account"}
+          </Button>
+          <Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary" }}>
+            Already have an account?{" "}
+            <Typography component={Link} to="/login" variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
+              Sign in
+            </Typography>
+          </Typography>
+        </Stack>
+      </form>
+    </AuthCard>
   );
 }

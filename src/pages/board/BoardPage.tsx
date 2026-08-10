@@ -5,10 +5,10 @@ import { useGetWorkflowStatesByBoardQuery } from '../../api/workflowStateApi';
 import { useDispatch } from 'react-redux';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { KanbanBoard } from '../../components/board/KanbanBoard';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Kanban } from 'lucide-react';
+import { ArrowLeft, Kanban } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import { Box, Stack, Typography, Button, CircularProgress } from '@mui/material';
 
 export default function BoardPage() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -58,57 +58,58 @@ export default function BoardPage() {
   const isLoading = boardsLoading || columnsLoading || issuesLoading || autoCreating || creating;
 
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <Stack spacing={2.5} sx={{ height: '100%' }}>
       {/* Header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <Link to={`/projects/${projectId}`}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Project
-          </Button>
-        </Link>
-        <div className="flex items-center gap-2">
-          <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600">
-            <Kanban className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <Button component={Link} to={`/projects/${projectId}`} size="small" color="inherit" startIcon={<ArrowLeft size={16} />}>
+          Project
+        </Button>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+          <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', p: 1, borderRadius: 2, display: 'flex' }}>
+            <Kanban size={20} />
+          </Box>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
               {board?.name ?? 'Board'}
-            </h1>
-            <p className="text-xs text-slate-500">
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
               {workflowStates.length} columns · {issues.length} issues
-            </p>
-          </div>
-        </div>
-      </div>
+            </Typography>
+          </Box>
+        </Stack>
+      </Stack>
 
       {/* Board content */}
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3 text-slate-500">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-            <p className="text-sm">
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Stack spacing={1.5} sx={{ alignItems: 'center', color: 'text.secondary' }}>
+            <CircularProgress size={32} />
+            <Typography variant="body2">
               {autoCreating || creating ? 'Setting up your board...' : 'Loading board...'}
-            </p>
-          </div>
-        </div>
+            </Typography>
+          </Stack>
+        </Box>
       ) : board && workflowStates.length > 0 ? (
-        <div className="flex-1 overflow-hidden">
+        <Box sx={{ flex: 1, overflow: 'hidden' }}>
           <KanbanBoard
             columns={workflowStates}
             issues={issues}
             projectId={numericProjectId}
             boardId={boardId!}
           />
-        </div>
+        </Box>
       ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Kanban className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500">Board is being set up...</p>
-          </div>
-        </div>
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Stack spacing={1.5} sx={{ alignItems: 'center' }}>
+            <Box sx={{ color: 'text.disabled', display: 'flex' }}>
+              <Kanban size={48} />
+            </Box>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Board is being set up...
+            </Typography>
+          </Stack>
+        </Box>
       )}
-    </div>
+    </Stack>
   );
 }

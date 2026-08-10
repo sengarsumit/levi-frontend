@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCreateCommentMutation } from '../../api/commentApi';
-import { Button } from '@/components/ui/button';
+import { Box, TextField, Button, Stack } from '@mui/material';
 import { Send } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,7 +24,7 @@ export function CommentBox({ issueId }: CommentBoxProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     // Submit on Ctrl+Enter or Cmd+Enter
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       void handleSubmit(e as unknown as React.FormEvent);
@@ -32,28 +32,29 @@ export function CommentBox({ issueId }: CommentBoxProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        rows={3}
-        placeholder="Add a comment... (Ctrl+Enter to submit)"
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none
-          focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent
-          placeholder:text-slate-400 transition-all"
-      />
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          size="sm"
-          disabled={isLoading || !text.trim()}
-          className="flex items-center gap-2"
-        >
-          <Send className="w-3.5 h-3.5" />
-          {isLoading ? 'Posting...' : 'Comment'}
-        </Button>
-      </div>
-    </form>
+    <Box component="form" onSubmit={handleSubmit}>
+      <Stack spacing={1}>
+        <TextField
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          multiline
+          rows={3}
+          fullWidth
+          placeholder="Add a comment... (Ctrl+Enter to submit)"
+        />
+        <Stack direction="row" sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            type="submit"
+            size="small"
+            variant="contained"
+            disabled={isLoading || !text.trim()}
+            startIcon={<Send size={14} />}
+          >
+            {isLoading ? 'Posting...' : 'Comment'}
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   );
 }

@@ -1,11 +1,20 @@
 import { useState } from "react";
 import { useGetOrganizationsQuery } from "../../api/organizationApi";
 import { CreateWorkspaceModal } from "../../components/organization/CreateWorkspaceModal";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Building, Plus, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router";
+import {
+  Box,
+  Stack,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Skeleton,
+  Paper,
+} from "@mui/material";
 
 export default function OrganizationPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -13,58 +22,109 @@ export default function OrganizationPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Organizations</h1>
-          <p className="text-slate-500 mt-1">Manage your workspaces and teams.</p>
-        </div>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <Plus className="w-4 h-4 mr-2" />
+    <Stack spacing={3}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ alignItems: { sm: "center" }, justifyContent: "space-between" }}
+      >
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            Organizations
+          </Typography>
+          <Typography variant="body1" sx={{ color: "text.secondary", mt: 0.5 }}>
+            Manage your workspaces and teams.
+          </Typography>
+        </Box>
+        <Button variant="contained" startIcon={<Plus size={16} />} onClick={() => setShowCreateModal(true)}>
           New Workspace
         </Button>
-      </div>
+      </Stack>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Grid container spacing={3}>
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 bg-slate-100 rounded-xl animate-pulse" />
+            <Grid key={i} size={{ xs: 12, md: 6, lg: 4 }}>
+              <Skeleton variant="rounded" height={128} sx={{ borderRadius: 3 }} />
+            </Grid>
           ))}
-        </div>
+        </Grid>
       ) : organizations?.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Grid container spacing={3}>
           {organizations.map((org: any) => (
-            <Card key={org.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="p-5 pb-0 flex-row items-center gap-3">
-                <div className="bg-indigo-100 p-2.5 rounded-lg text-indigo-600">
-                  <Building className="w-5 h-5" />
-                </div>
-                <h3 className="font-semibold text-lg text-slate-900">{org.name}</h3>
-              </CardHeader>
-              <CardContent className="p-5 pt-3 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {org.createdAt ? format(new Date(org.createdAt), 'MMM d, yyyy') : 'N/A'}
-                </div>
-                <Button variant="outline" size="sm" onClick={() => navigate(`/organization/${org.id}/settings`)}>
-                  Manage
-                </Button>
-              </CardContent>
-            </Card>
+            <Grid key={org.id} size={{ xs: 12, md: 6, lg: 4 }}>
+              <Card
+                variant="outlined"
+                sx={{ borderRadius: 3, transition: "box-shadow 0.15s ease", "&:hover": { boxShadow: 3 } }}
+              >
+                <CardContent sx={{ p: 2.5 }}>
+                  <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 2 }}>
+                    <Box
+                      sx={{
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+                        p: 1.25,
+                        borderRadius: 2,
+                        display: "flex",
+                      }}
+                    >
+                      <Building size={20} />
+                    </Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                      {org.name}
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+                    <Stack direction="row" spacing={0.75} sx={{ alignItems: "center", color: "text.secondary" }}>
+                      <Calendar size={14} />
+                      <Typography variant="caption">
+                        {org.createdAt ? format(new Date(org.createdAt), "MMM d, yyyy") : "N/A"}
+                      </Typography>
+                    </Stack>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => navigate(`/organization/${org.id}/settings`)}
+                    >
+                      Manage
+                    </Button>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       ) : (
-        <div className="text-center py-16 bg-white rounded-xl border border-dashed">
-          <div className="mx-auto w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-            <Building className="w-6 h-6 text-slate-400" />
-          </div>
-          <h3 className="text-lg font-medium text-slate-900">No workspaces yet</h3>
-          <p className="text-slate-500 mt-1 mb-6">Create your first workspace to get started.</p>
-          <Button onClick={() => setShowCreateModal(true)}>Create Workspace</Button>
-        </div>
+        <Paper variant="outlined" sx={{ py: 8, textAlign: "center", borderRadius: 3, borderStyle: "dashed" }}>
+          <Box
+            sx={{
+              mx: "auto",
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              bgcolor: "action.hover",
+              color: "text.secondary",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 2,
+            }}
+          >
+            <Building size={24} />
+          </Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            No workspaces yet
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5, mb: 3 }}>
+            Create your first workspace to get started.
+          </Typography>
+          <Button variant="contained" onClick={() => setShowCreateModal(true)}>
+            Create Workspace
+          </Button>
+        </Paper>
       )}
 
       <CreateWorkspaceModal open={showCreateModal} onOpenChange={setShowCreateModal} />
-    </div>
+    </Stack>
   );
 }

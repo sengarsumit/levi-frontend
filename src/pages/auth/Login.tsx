@@ -3,10 +3,8 @@ import { useNavigate, Link } from "react-router";
 import { useDispatch } from "react-redux";
 import { useLoginMutation } from "../../api/authApi";
 import { setCredentials } from "../../features/auth/authSlice";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stack, TextField, Button, Typography } from "@mui/material";
+import { AuthCard } from "../../components/auth/AuthCard";
 import { toast } from "sonner";
 
 export default function Login() {
@@ -29,49 +27,37 @@ export default function Login() {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-          <CardDescription>Enter your email to sign in to your account</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
-            <div className="text-sm text-center text-slate-500">
-              Don't have an account?{" "}
-              <Link to="/register" className="font-medium text-slate-900 hover:underline">
-                Sign up
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+    <AuthCard title="Welcome back" description="Enter your email to sign in to your account">
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={2.5}>
+          <TextField
+            label="Email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            required
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" variant="contained" size="large" fullWidth disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign in"}
+          </Button>
+          <Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary" }}>
+            Don't have an account?{" "}
+            <Typography component={Link} to="/register" variant="body2" sx={{ fontWeight: 600, color: "text.primary" }}>
+              Sign up
+            </Typography>
+          </Typography>
+        </Stack>
+      </form>
+    </AuthCard>
   );
 }

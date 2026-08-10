@@ -1,8 +1,9 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { Box, Stack, Typography, Chip, Button } from '@mui/material';
 import type { Issue } from '../../types';
 import type { Sprint } from '../../api/sprintApi';
-import IssueCard from '../issue/IssueCard';
+import { IssueCard } from '../issue/IssueCard';
 
 interface SprintSectionProps {
   sprint: Sprint;
@@ -28,62 +29,65 @@ export default function SprintSection({
   });
 
   return (
-    <div className="bg-white dark:bg-dark-paper border border-gray-200 dark:border-dark-border rounded-lg mb-6 shadow-sm overflow-hidden transition-colors duration-200">
-      <div className="bg-gray-50 dark:bg-dark-bg/50 px-4 py-3 border-b border-gray-200 dark:border-dark-border flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <span className="text-xl">🏃</span> {sprint.name}
-          </h3>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-            {issues.length} issues
-          </span>
-          {sprint.status === 'ACTIVE' && (
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
-              Active Sprint
-            </span>
-          )}
-        </div>
-        <div>
-          {sprint.status === 'PLANNED' && (
-            <button
-              onClick={onStartSprint}
-              disabled={issues.length === 0}
-              className="text-sm font-medium px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Start Sprint
-            </button>
-          )}
-          {sprint.status === 'ACTIVE' && (
-            <button
-              onClick={onCompleteSprint}
-              className="text-sm font-medium px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-            >
-              Complete Sprint
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div
-        ref={setNodeRef}
-        className={`p-2 min-h-[100px] ${
-          issues.length === 0 ? 'flex items-center justify-center' : 'flex flex-col gap-2'
-        }`}
+    <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: 'center', justifyContent: 'space-between', bgcolor: 'action.hover', px: 2, py: 1.5, borderBottom: 1, borderColor: 'divider', flexWrap: 'wrap', gap: 1 }}
       >
-        <SortableContext items={issues.map(i => `issue-${i.id}`)} strategy={verticalListSortingStrategy}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+            🏃 {sprint.name}
+          </Typography>
+          <Chip label={`${issues.length} issues`} size="small" />
+          {sprint.status === 'ACTIVE' && (
+            <Chip label="Active Sprint" size="small" color="primary" />
+          )}
+        </Stack>
+        <Box>
+          {sprint.status === 'PLANNED' && (
+            <Button size="small" variant="contained" onClick={onStartSprint} disabled={issues.length === 0}>
+              Start Sprint
+            </Button>
+          )}
+          {sprint.status === 'ACTIVE' && (
+            <Button size="small" variant="contained" color="success" onClick={onCompleteSprint}>
+              Complete Sprint
+            </Button>
+          )}
+        </Box>
+      </Stack>
+
+      <Stack
+        ref={setNodeRef}
+        spacing={1}
+        sx={{ p: 1.5, minHeight: 100, justifyContent: issues.length === 0 ? 'center' : undefined }}
+      >
+        <SortableContext items={issues.map((i) => `issue-${i.id}`)} strategy={verticalListSortingStrategy}>
           {issues.length > 0 ? (
             issues.map((issue) => (
-              <div key={issue.id} onClick={() => onIssueClick(issue)} className="cursor-pointer">
-                <IssueCard issue={issue} />
-              </div>
+              <IssueCard key={issue.id} issue={issue} sortableId={`issue-${issue.id}`} onClick={onIssueClick} />
             ))
           ) : (
-            <div className="text-sm text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-200 dark:border-dark-border rounded-lg w-full h-full min-h-[80px] flex items-center justify-center">
-              Plan a sprint by dragging issues here
-            </div>
+            <Box
+              sx={{
+                border: 2,
+                borderStyle: 'dashed',
+                borderColor: 'divider',
+                borderRadius: 2,
+                width: '100%',
+                minHeight: 80,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Plan a sprint by dragging issues here
+              </Typography>
+            </Box>
           )}
         </SortableContext>
-      </div>
-    </div>
+      </Stack>
+    </Box>
   );
 }

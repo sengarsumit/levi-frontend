@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { FolderKanban, MoreHorizontal, Calendar } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, Box, Typography, IconButton, Stack } from "@mui/material";
 import { format } from "date-fns";
 
 interface ProjectCardProps {
@@ -15,41 +15,91 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow group flex flex-col h-full">
-      <CardHeader className="p-5 pb-0 flex-row items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-indigo-100 p-2.5 rounded-lg text-indigo-600">
-            <FolderKanban className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors">
-              <Link to={`/projects/${project.id}`} className="focus:outline-none">
-                <span className="absolute inset-0" aria-hidden="true" />
+    <Card
+      variant="outlined"
+      sx={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        borderRadius: 3,
+        transition: "box-shadow 0.15s ease",
+        "&:hover": { boxShadow: 3 },
+      }}
+    >
+      <CardContent sx={{ p: 2.5, pb: 1.5, flex: 1, display: "flex", flexDirection: "column" }}>
+        <Stack direction="row" sx={{ alignItems: "flex-start", justifyContent: "space-between" }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+            <Box
+              sx={{
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                p: 1.25,
+                borderRadius: 2,
+                display: "flex",
+              }}
+            >
+              <FolderKanban size={20} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                {/* Stretched link: covers the whole card so anywhere on it navigates, while the
+                    more-options button below sits above it (zIndex) and stays independently clickable. */}
+                <Box
+                  component={Link}
+                  to={`/projects/${project.id}`}
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 0,
+                  }}
+                  aria-label={project.name}
+                />
                 {project.name}
-              </Link>
-            </h3>
-            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              {project.projectKey}
-            </span>
-          </div>
-        </div>
-        <button className="text-slate-400 hover:text-slate-600 p-1 z-10 relative">
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
-      </CardHeader>
-      
-      <CardContent className="p-5 flex-1">
-        <p className="text-sm text-slate-600 line-clamp-2">
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary", letterSpacing: 0.5 }}>
+                {project.projectKey}
+              </Typography>
+            </Box>
+          </Stack>
+          <IconButton size="small" sx={{ position: "relative", zIndex: 1, color: "text.secondary" }}>
+            <MoreHorizontal size={18} />
+          </IconButton>
+        </Stack>
+
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mt: 2,
+            flex: 1,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
           {project.description || "No description provided."}
-        </p>
+        </Typography>
       </CardContent>
-      
-      <CardFooter className="p-5 pt-0 flex items-center text-xs text-slate-500 border-t mt-4 border-slate-100 pt-4">
-        <div className="flex items-center gap-1.5">
-          <Calendar className="w-3.5 h-3.5" />
-          {format(new Date(project.createdAt), 'MMM d, yyyy')}
-        </div>
-      </CardFooter>
+
+      <Stack
+        direction="row"
+        spacing={0.75}
+        sx={{
+          alignItems: "center",
+          px: 2.5,
+          py: 1.5,
+          borderTop: 1,
+          borderColor: "divider",
+          color: "text.secondary",
+        }}
+      >
+        <Calendar size={14} />
+        <Typography variant="caption">
+          {format(new Date(project.createdAt), "MMM d, yyyy")}
+        </Typography>
+      </Stack>
     </Card>
   );
 }

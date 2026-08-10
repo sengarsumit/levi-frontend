@@ -2,17 +2,16 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useCreateProjectMutation } from "../../api/projectApi";
 import { type RootState } from "../../app/store";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  TextField,
+  Stack,
+} from "@mui/material";
 import { toast } from "sonner";
 
 interface CreateProjectModalProps {
@@ -23,7 +22,7 @@ interface CreateProjectModalProps {
 export function CreateProjectModal({ open, onOpenChange }: CreateProjectModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  
+
   const currentTenantId = useSelector((state: RootState) => state.organization.currentTenantId);
   const [createProject, { isLoading }] = useCreateProjectMutation();
 
@@ -32,12 +31,12 @@ export function CreateProjectModal({ open, onOpenChange }: CreateProjectModalPro
     if (!name.trim()) return;
 
     try {
-      await createProject({ 
-        name, 
+      await createProject({
+        name,
         description,
-        orgId: currentTenantId 
+        orgId: currentTenantId,
       }).unwrap();
-      
+
       toast.success("Project created successfully");
       setName("");
       setDescription("");
@@ -48,46 +47,39 @@ export function CreateProjectModal({ open, onOpenChange }: CreateProjectModalPro
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Create Project</DialogTitle>
-            <DialogDescription>
-              Start a new project in your workspace.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Project Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="E-commerce Redesign"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional description"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading || !currentTenantId}>
-              {isLoading ? "Creating..." : "Create Project"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+    <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="xs" fullWidth>
+      <form onSubmit={handleSubmit}>
+        <DialogTitle>Create Project</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>Start a new project in your workspace.</DialogContentText>
+          <Stack spacing={2.5}>
+            <TextField
+              autoFocus
+              fullWidth
+              required
+              label="Project Name"
+              placeholder="E-commerce Redesign"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              placeholder="Optional description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button variant="outlined" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={isLoading || !currentTenantId}>
+            {isLoading ? "Creating..." : "Create Project"}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

@@ -1,23 +1,26 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Paper, Stack, Typography, Box } from '@mui/material';
+import { GripVertical } from 'lucide-react';
 import { IssueTypeBadge } from './IssueBadge';
 import { AssigneeAvatar } from './AssigneeAvatar';
-import { GripVertical } from 'lucide-react';
 import type { Issue } from '../../types';
 
 interface IssueCardProps {
   issue: Issue;
+  // The Kanban board and the Backlog/Sprint views each run their own separate dnd-kit
+  // DndContext with different id-namespacing needs (Backlog's context also has "sprint-N"
+  // and "backlog" droppable ids in the same space, so its issues need an "issue-N" prefix
+  // to disambiguate; the board's context has no such collision and uses the plain numeric
+  // id) — the caller decides which id shape applies, this component just renders.
+  sortableId: string | number;
+  onClick?: (issue: Issue) => void;
 }
 
-export default function IssueCard({ issue }: IssueCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: `issue-${issue.id}` });
+export function IssueCard({ issue, sortableId, onClick }: IssueCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: sortableId,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -25,34 +28,65 @@ export default function IssueCard({ issue }: IssueCardProps) {
   };
 
   return (
-    <div
+    <Paper
       ref={setNodeRef}
       style={style}
-      className={`bg-white dark:bg-dark-paper rounded-lg border border-gray-200 dark:border-dark-border p-3 shadow-sm group hover:shadow-md hover:border-primary-300 dark:hover:border-primary-500/50 transition-all ${
-        isDragging ? 'opacity-50 ring-2 ring-primary-400 shadow-xl z-50 relative' : ''
-      }`}
+      variant="outlined"
+      onClick={() => onClick?.(issue)}
+      sx={{
+        p: 1.5,
+        borderRadius: 2,
+        cursor: onClick ? 'pointer' : undefined,
+        transition: 'box-shadow 0.15s ease, border-color 0.15s ease',
+        "&:hover": { boxShadow: 2, borderColor: 'primary.light' },
+        ...(isDragging && {
+          opacity: 0.5,
+          boxShadow: 4,
+          outline: '2px solid',
+          outlineColor: 'primary.main',
+          position: 'relative',
+          zIndex: 1,
+        }),
+      }}
     >
-      <div className="flex items-start gap-2">
-        <button
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
+        <Box
           {...attributes}
           {...listeners}
-          className="mt-0.5 text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
           onClick={(e) => e.stopPropagation()}
+          sx={{
+            mt: 0.25,
+            color: 'text.disabled',
+            cursor: 'grab',
+            display: 'flex',
+            flexShrink: 0,
+            '&:active': { cursor: 'grabbing' },
+            '&:hover': { color: 'text.secondary' },
+          }}
         >
-          <GripVertical className="w-4 h-4" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-snug line-clamp-2">
+          <GripVertical size={16} />
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 500,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
+          >
             {issue.title}
-          </p>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
+          </Typography>
+          <Box sx={{ mt: 1 }}>
             <IssueTypeBadge type={issue.issueType} />
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center justify-end mt-2">
+          </Box>
+        </Box>
+      </Stack>
+      <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 1 }}>
         <AssigneeAvatar assignedTo={issue.assignedTo} />
-      </div>
-    </div>
+      </Stack>
+    </Paper>
   );
 }
