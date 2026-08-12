@@ -49,3 +49,17 @@ export interface OrganizationUser {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt: string;
 }
+
+export interface UserProductivity {
+  userId: string;
+  assignedCount: number;
+  completedCount: number;
+  avgTimeTakenHours: number | null;
+}
+
+export interface ProductivityStats {
+  totalIssues: number;
+  completedIssues: number;
+  avgTimeTakenHours: number | null;
+  byUser: UserProductivity[];
+}

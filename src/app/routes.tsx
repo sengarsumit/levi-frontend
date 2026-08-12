@@ -13,6 +13,7 @@ import OrganizationPage from "../pages/organization/OrganizationPage";
 import OrganizationSettings from "../pages/organization/OrganizationSettings";
 import BoardPage from "../pages/board/BoardPage";
 import BacklogPage from "../pages/project/BacklogPage";
+import ProductivityPage from "../pages/project/ProductivityPage";
 import IssueDetailPage from "../pages/board/IssueDetailPage";
 import MainLayout from "../components/layout/MainLayout";
 
@@ -65,6 +66,10 @@ export const router = createBrowserRouter([
           {
             path: "projects/:id/backlog",
             element: <BacklogPage />,
+          },
+          {
+            path: "projects/:id/productivity",
+            element: <ProductivityPage />,
           },
           {
             path: "issues/:issueId",

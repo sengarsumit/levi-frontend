@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import type { Issue } from '../types';
+import type { Issue, ProductivityStats } from '../types';
 
 export const issueApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,6 +9,10 @@ export const issueApi = baseApi.injectEndpoints({
     }),
     getBacklogIssuesByProject: builder.query<Issue[], number>({
       query: (projectId) => `/api/issues/project/${projectId}/backlog`,
+      providesTags: ['Issue'],
+    }),
+    getProjectProductivity: builder.query<ProductivityStats, number>({
+      query: (projectId) => `/api/issues/project/${projectId}/productivity`,
       providesTags: ['Issue'],
     }),
     getIssuesByBoard: builder.query<Issue[], number>({
@@ -64,6 +68,7 @@ export const issueApi = baseApi.injectEndpoints({
 export const {
   useGetIssuesByProjectQuery,
   useGetBacklogIssuesByProjectQuery,
+  useGetProjectProductivityQuery,
   useGetIssuesByBoardQuery,
   useGetIssueByIdQuery,
   useCreateIssueMutation,

@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router";
 import { useGetProjectByIdQuery } from "../../api/projectApi";
 import { useGetIssuesByProjectQuery } from "../../api/issueApi";
-import { ArrowLeft, FolderKanban, Calendar, CheckSquare, Kanban, ListTodo } from "lucide-react";
+import { ArrowLeft, FolderKanban, Calendar, CheckSquare, Kanban, ListTodo, BarChart3 } from "lucide-react";
 import { format } from "date-fns";
 import {
   Box,
@@ -154,6 +154,7 @@ export default function ProjectDetail() {
       {[
         { to: `/projects/${id}/board`, icon: Kanban, title: "Kanban Board", desc: "View and manage issues across workflow columns" },
         { to: `/projects/${id}/backlog`, icon: ListTodo, title: "Sprint Backlog", desc: "Plan sprints, prioritize issues, and manage backlog" },
+        { to: `/projects/${id}/productivity`, icon: BarChart3, title: "Productivity", desc: "See completion rates and time-to-complete by teammate" },
       ].map(({ to, icon: Icon, title, desc }) => (
         <Card key={to} variant="outlined" sx={{ borderRadius: 3, borderStyle: "dashed", borderWidth: 2 }}>
           <CardActionArea component={Link} to={to} sx={{ p: 3 }}>
