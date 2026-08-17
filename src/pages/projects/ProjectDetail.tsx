@@ -15,6 +15,7 @@ import {
   Chip,
   Skeleton,
 } from "@mui/material";
+import { ProjectMembersCard } from "../../components/project/ProjectMembersCard";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -150,6 +151,8 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
       )}
+
+      <ProjectMembersCard projectId={projectId} organizationId={project.organizationId} />
 
       {[
         { to: `/projects/${id}/board`, icon: Kanban, title: "Kanban Board", desc: "View and manage issues across workflow columns" },
