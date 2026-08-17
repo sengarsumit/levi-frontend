@@ -6,6 +6,7 @@ import { useJoinOrgMutation } from "../../api/organizationApi";
 import { setCredentials } from "../../features/auth/authSlice";
 import { Stack, TextField, Button, Typography } from "@mui/material";
 import { AuthCard } from "../../components/auth/AuthCard";
+import { RoleSelectStep } from "../../components/auth/RoleSelectStep";
 import { toast } from "sonner";
 
 export default function OrgLogin() {
@@ -18,6 +19,7 @@ export default function OrgLogin() {
   const navigate = useNavigate();
 
   const [needsAccess, setNeedsAccess] = useState(false);
+  const [showRoleStep, setShowRoleStep] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,9 +50,19 @@ export default function OrgLogin() {
       const userData = await login({ email, password }).unwrap();
       dispatch(setCredentials({ token: userData.token, user: userData.user }));
 
-      await joinOrg(orgSlug).unwrap();
+      setShowRoleStep(true);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to request access");
+    }
+  };
+
+  const handleRoleSubmit = async (preferredRoleId: number | undefined) => {
+    if (!orgSlug) return;
+    try {
+      await joinOrg({ orgSlug, preferredRoleId }).unwrap();
       toast.success("Access requested successfully! Please wait for approval.");
       setNeedsAccess(false);
+      setShowRoleStep(false);
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to request access");
     }
@@ -63,6 +75,9 @@ export default function OrgLogin() {
       title={`${orgSlug} Login`}
       description="Enter your email to sign in to the organization"
     >
+      {showRoleStep && orgSlug ? (
+        <RoleSelectStep orgSlug={orgSlug} onSubmit={handleRoleSubmit} isSubmitting={isJoining} />
+      ) : (
       <form onSubmit={handleSubmit}>
         <Stack spacing={2.5}>
           <TextField
@@ -92,7 +107,7 @@ export default function OrgLogin() {
               fullWidth
               disabled={isLoading}
             >
-              {isJoining ? "Requesting..." : "Request Access to Organization"}
+              {isLoggingIn ? "Requesting..." : "Request Access to Organization"}
             </Button>
           ) : (
             <Button type="submit" variant="contained" size="large" fullWidth disabled={isLoading}>
@@ -121,6 +136,7 @@ export default function OrgLogin() {
           </Stack>
         </Stack>
       </form>
+      )}
     </AuthCard>
   );
 }

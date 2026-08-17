@@ -35,10 +35,14 @@ export const organizationApi = baseApi.injectEndpoints({
       invalidatesTags: ['OrganizationUser'],
     }),
     joinOrg: builder.mutation({
-      query: (orgSlug) => ({
+      query: ({ orgSlug, preferredRoleId }) => ({
         url: `/api/organization/${orgSlug}/join`,
         method: 'POST',
+        body: { preferredRoleId },
       }),
+    }),
+    getJoinRoles: builder.query({
+      query: (orgSlug) => `/api/organization/${orgSlug}/join/roles`,
     }),
     getPendingMembers: builder.query({
       query: (orgId) => `/api/organization/${orgId}/members/pending`,
@@ -81,6 +85,7 @@ export const {
   useCreateRoleMutation,
   useInviteUserMutation,
   useJoinOrgMutation,
+  useGetJoinRolesQuery,
   useGetPendingMembersQuery,
   useGetActiveMembersQuery,
   useApproveMemberMutation,

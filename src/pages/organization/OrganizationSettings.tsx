@@ -80,19 +80,23 @@ export default function OrganizationSettings() {
   useEffect(() => {
     if (roles && pendingMembers) {
       const userRole = roles.find((r: any) => r.name === "User") || roles[0];
-      if (userRole) {
-        setSelectedRoleForPending(prev => {
-          const newSelected = { ...prev };
-          let changed = false;
-          pendingMembers.forEach((m: any) => {
-            if (!newSelected[m.user.id]) {
-              newSelected[m.user.id] = userRole.id;
+      setSelectedRoleForPending(prev => {
+        const newSelected = { ...prev };
+        let changed = false;
+        pendingMembers.forEach((m: any) => {
+          if (!newSelected[m.user.id]) {
+            // Default to whatever's already on the pending row — the requester's own
+            // preference if they expressed one at join time, else the system fallback —
+            // instead of always hunting for "User" regardless of what was requested.
+            const defaultRoleId = m.role?.id ?? userRole?.id;
+            if (defaultRoleId) {
+              newSelected[m.user.id] = defaultRoleId;
               changed = true;
             }
-          });
-          return changed ? newSelected : prev;
+          }
         });
-      }
+        return changed ? newSelected : prev;
+      });
     }
   }, [roles, pendingMembers]);
 
@@ -378,6 +382,11 @@ export default function OrganizationSettings() {
                   <Box>
                     <Typography sx={{ fontWeight: 600 }}>{member.user.name}</Typography>
                     <Typography variant="body2" sx={{ color: "text.secondary" }}>{member.user.email}</Typography>
+                    {member.role?.name && (
+                      <Typography variant="caption" sx={{ color: "text.disabled" }}>
+                        Requested: {member.role.name}
+                      </Typography>
+                    )}
                   </Box>
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
                     <FormControl size="small" sx={{ minWidth: 140 }}>
