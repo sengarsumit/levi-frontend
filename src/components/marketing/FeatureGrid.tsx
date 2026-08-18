@@ -8,6 +8,9 @@ import {
   ShieldCheck,
   MessageSquare,
   KeyRound,
+  BarChart3,
+  UsersRound,
+  UserPlus,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -60,6 +63,22 @@ const features: Feature[] = [
     icon: KeyRound,
     title: 'Organization-specific sign-in',
     description: 'Every workspace gets its own dedicated login and signup URL.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Productivity dashboard',
+    description:
+      'Completion-rate stats, average time-to-complete, and a per-teammate breakdown chart — computed against each person\'s actual working hours.',
+  },
+  {
+    icon: UsersRound,
+    title: 'Project-level membership',
+    description: "Roster specific teammates onto individual projects — non-members don't see projects they're not part of.",
+  },
+  {
+    icon: UserPlus,
+    title: 'Role preference at signup',
+    description: 'Request a specific role when asking to join a workspace; the admin sees it pre-filled and still makes the final call.',
   },
 ];
 

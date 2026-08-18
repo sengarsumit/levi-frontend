@@ -1,5 +1,5 @@
 import { Box, Container, Typography, Grid, Paper, Stack, Chip } from '@mui/material';
-import { BarChart3, UsersRound, UserPlus, Palette } from 'lucide-react';
+import { Palette } from 'lucide-react';
 import type { ComponentType } from 'react';
 
 interface RoadmapItem {
@@ -9,22 +9,6 @@ interface RoadmapItem {
 }
 
 const roadmap: RoadmapItem[] = [
-  {
-    icon: BarChart3,
-    title: 'Productivity dashboard',
-    description:
-      'The backend already computes assigned → started → completed timing against each teammate’s working hours — a UI to actually see it is next.',
-  },
-  {
-    icon: UsersRound,
-    title: 'Project-level membership',
-    description: 'Roster specific teammates onto individual projects, not just the organization as a whole.',
-  },
-  {
-    icon: UserPlus,
-    title: 'Role selection at signup',
-    description: 'Pick the role you’re requesting when you ask to join a workspace, for the admin to confirm.',
-  },
   {
     icon: Palette,
     title: 'Per-organization theming',
